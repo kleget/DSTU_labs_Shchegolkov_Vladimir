@@ -9,7 +9,7 @@ elif seconds >= 3600:
 elif seconds >= 60:
     answer = f'Минуты: {((seconds%86400)%3600)//60}\nСекунды: {((seconds%86400)%3600)%60}'
 elif seconds < 60:
-    answer = f'Минуты: {((seconds%86400)%3600)//60}\nСекунды: {((seconds%86400)%3600)%60}'
+    answer = f'Секунды: {((seconds%86400)%3600)%60}'
 else:
     answer = 'Билиберда'
 print(answer)
