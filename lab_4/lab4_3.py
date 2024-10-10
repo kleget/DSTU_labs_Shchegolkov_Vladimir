@@ -16,3 +16,5 @@ else:
     y = math.fabs(y)
     z = math.fabs(z)
 
+print(f"x: {x}\ny: {y}\nz: {z}")
+
