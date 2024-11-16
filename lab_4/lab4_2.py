@@ -21,5 +21,4 @@ def main():
         print("Такой треугольник не возможен.")
         main()
 
-if __name__ == "__main__":
-    main()
+main()
