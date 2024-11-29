@@ -34,20 +34,23 @@ Tg = [list(sublist) for sublist in Tg]
 #строим матрицу Tg
 for i in reachable_nodes:
     for j in reachable_nodes[i]:
-        if (str(j) in reachable_nodes[i]): # and (str(i) in reachable_nodes[j]):
-            Tg[int(i)-1][int(j)-1] = 1
-        else:
-            Tg[int(i)-1][int(j)-1] = 0
+        if i != '' and j != '':
+            if (str(j) in reachable_nodes[i]): # and (str(i) in reachable_nodes[j]):
+                Tg[int(i)-1][int(j)-1] = 1
+            else:
+                Tg[int(i)-1][int(j)-1] = 0
+        # else: Tg[int(i)][int(j)] = 0
 
 #строим матрицу Sg
 Sg = len(reachable_nodes) * [len(reachable_nodes) * [0]]
 Sg = [list(sublist) for sublist in Sg]
 for i in reachable_nodes:
     for j in reachable_nodes[i]:
-        if Tg[int(i)-1][int(j)-1]==1 and Tg[int(j)-1][int(i)-1]==1:
-            Sg[int(i)-1][int(j)-1] = 1
-        else:
-            Sg[int(i)-1][int(j)-1] = 0
+        if i != '' and j != '':
+            if Tg[int(i)-1][int(j)-1]==1 and Tg[int(j)-1][int(i)-1]==1:
+                Sg[int(i)-1][int(j)-1] = 1
+            else:
+                Sg[int(i)-1][int(j)-1] = 0
 
 print('Tg')
 for x in Tg:
