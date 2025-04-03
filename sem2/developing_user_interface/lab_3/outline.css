@@ -1,0 +1,92 @@
+:root {
+    --outline-1-level: rgb(76, 169, 255);
+    --background-color-sticker-1-level: rgba(76, 169, 255, 0.1);
+    --outline-2-level: rgb(255, 107, 0);
+    --background-color-sticker-2-level: rgba(255, 107, 0, 0.1);
+    --outline-3-level: rgb(116, 76, 230);
+    --background-color-sticker-3-level: rgba(116, 76, 230, 0.1);
+    --outline-4-level: rgb(78, 181, 67);
+    --background-color-sticker-4-level: rgba(78, 181, 67, 0.2);
+    --outline-5-level: rgb(239, 51, 255);
+    --background-color-sticker-5-level: rgba(239, 51, 255, 0.2);
+    --outline-6-level: rgb(255, 191, 0);
+    --background-color-sticker-6-level: rgba(255, 191, 0, 0.2);
+  }
+  
+  body,
+  body > *,
+  body > * > *,
+  body > * > * > *,
+  body > * > * > * > *,
+  body > * > * > * > * > *,
+  body > * > * > * > * > * > * {
+    outline-offset: -2px;
+    position: relative;
+  }
+  
+  body::before,
+  body > *::before,
+  body > * > *::before,
+  body > * > * > *:not(.item-with-picture)::before,
+  body > * > * > * > *::before,
+  body > * > * > * > * > *:not(.item-with-picture)::before,
+  body > * > * > * > * > * > *:not(.item-with-picture)::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0 10px 2px;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: initial;
+    text-transform: lowercase;
+    color: white;
+    white-space: nowrap;
+    z-index: 1;
+  }
+  
+  .video {
+    outline: 2px solid var(--outline-3-level);
+    background: var(--background-color-sticker-3-level);
+  }
+  
+  .video::before {
+    content: attr(class);
+    background: var(--outline-3-level);
+  }
+  
+  .video > * {
+    outline: 2px solid var(--outline-4-level);
+    background: var(--background-color-sticker-4-level);
+  }
+  
+  .video > *::before {
+    content: attr(class);
+    right: 0;
+    left: auto !important;
+    background: var(--outline-4-level);
+  }
+  
+  .video > * > * {
+    outline: 2px solid var(--outline-5-level);
+    background: var(--background-color-sticker-5-level);
+  }
+  
+  .video > * > *::before {
+    content: attr(class);
+    background: var(--outline-5-level);
+  }
+  
+  .video > * > * > * {
+    background-color: var(--background-color-sticker-6-level) !important;
+     outline: 2px solid var(--outline-6-level) !important;
+  }
+  
+  .video > * > * > *::before {
+    content: attr(class);
+    top: auto !important;
+    bottom: 0;
+    background: var(--outline-6-level);
+  }
+  
