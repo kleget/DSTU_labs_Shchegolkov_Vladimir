@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Задание JS 8</title>
+</head>
+<body>
+    <script>
+        // Преобразование роста (дюймы → см) и веса (фунты → кг)
+        let heightInch = 70;
+        let weightPound = 150;
+
+        let heightCm = heightInch * 2.54;
+        let weightKg = weightPound / 2.2046;
+
+        // Расчет ИМТ
+        let heightM = heightCm / 100;
+        let bmi = weightKg / (heightM ** 2);
+
+        document.write(`Рост: ${heightCm.toFixed(1)} см<br>`);
+        document.write(`Вес: ${weightKg.toFixed(1)} кг<br>`);
+        document.write(`ИМТ: ${bmi.toFixed(1)}`);
+    </script>
+</body>
+</html>

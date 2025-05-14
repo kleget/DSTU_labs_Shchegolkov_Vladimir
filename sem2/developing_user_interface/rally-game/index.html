@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ралли</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="hud">
+            <div id="score">Счет: 0</div>
+            <button id="newGame">Новая игра</button>
+            <button id="records">Рекорды</button>
+        </div>
+    </div>
+    
+    <div id="recordModal" class="hidden">
+        <div class="modal-content">
+            <p>Введите ваше имя:</p>
+            <input type="text" id="playerName">
+            <button id="saveRecord">Сохранить</button>
+        </div>
+    </div>
+    
+    <div id="recordsTable" class="hidden">
+        <div class="modal-content">
+            <h2>Таблица рекордов</h2>
+            <ul id="recordsList"></ul>
+            <button id="closeRecords">Закрыть</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
