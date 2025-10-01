@@ -1,0 +1,11 @@
+public class Task1 {
+    public static void main(String[] args) {
+        System.out.println("Тип\t\tMin\t\t\tMax");
+        System.out.println("byte\t\t" + Byte.MIN_VALUE + "\t\t\t" + Byte.MAX_VALUE);
+        System.out.println("short\t\t" + Short.MIN_VALUE + "\t\t\t" + Short.MAX_VALUE);
+        System.out.println("int\t\t" + Integer.MIN_VALUE + "\t\t" + Integer.MAX_VALUE);
+        System.out.println("long\t\t" + Long.MIN_VALUE + "\t" + Long.MAX_VALUE);
+        System.out.println("float\t\t" + Float.MIN_VALUE + "\t\t\t" + Float.MAX_VALUE);
+        System.out.println("double\t\t" + Double.MIN_VALUE + "\t\t" + Double.MAX_VALUE);
+    }
+}
