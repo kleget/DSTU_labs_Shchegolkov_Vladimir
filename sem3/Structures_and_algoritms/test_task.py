@@ -1,93 +1,82 @@
-class MemoryManager:
+class Node:
+    """Узел односвязного списка"""
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+class LinkedList:
+    """Односвязный список с поиском с барьером"""
+    
     def __init__(self):
-        self.segments = [[None] * 32 for _ in range(4)]
-        self.pointers = {}
+        self.head = None
     
-    def get_free_space(self):
-        return [sum(1 for cell in seg if cell is None) for seg in self.segments]
+    def add(self, value):
+        """Добавление элемента в конец списка"""
+        new_node = Node(value)
+        if self.head is None:
+            self.head = new_node
+        else:
+            current = self.head
+            while current.next is not None:
+                current = current.next
+            current.next = new_node
     
-    def find_best_segment(self, size):
-        free_spaces = self.get_free_space()
-        best_seg = None
-        best_offset = None
-        max_diff = -1
+    def search_with_barrier(self, target):
+        """Поиск с барьером"""
+        if self.head is None:
+            return None
         
-        for seg_num in range(4):
-            for offset in range(33 - size):
-                if all(self.segments[seg_num][offset + i] is None for i in range(size)):
-                    # Вычисляем новое распределение памяти
-                    new_free = free_spaces.copy()
-                    new_free[seg_num] -= size
-                    
-                    # Находим максимальную разницу
-                    diff = max(new_free) - min(new_free)
-                    
-                    if diff > max_diff:
-                        max_diff = diff
-                        best_seg = seg_num
-                        best_offset = offset
+        # Создаем барьерный узел с искомым значением
+        barrier = Node(target)
         
-        return best_seg, best_offset
+        # Находим последний узел и прикрепляем к нему барьер
+        current = self.head
+        while current.next is not None:
+            current = current.next
+        current.next = barrier
+        
+        # Теперь ищем целевой элемент
+        current = self.head
+        while current.value != target:
+            current = current.next
+        
+        # Удаляем барьер
+        current = self.head
+        while current.next != barrier:
+            current = current.next
+        current.next = None
+        
+        # Проверяем, нашли ли мы целевой элемент или барьер
+        if current.value == target:
+            return current
+        return None
     
-    def create_pointer(self, name, data_type):
-        sizes = {'byte': 1, 'int': 2, 'longint': 4}
-        size = sizes[data_type]
-        
-        seg, offset = self.find_best_segment(size)
-        if seg is None:
-            return "Недостаточно памяти"
-        
-        # Занимаем память
-        for i in range(size):
-            self.segments[seg][offset + i] = name
-        
-        self.pointers[name] = {
-            'segment': seg,
-            'offset': offset,
-            'size': size,
-            'type': data_type,
-            'value': None
-        }
-        
-        free = self.get_free_space()
-        print(f"Создан {name} в сегменте {seg}. Свободно: {free}")
-    
-    def write_pointer(self, name, value):
-        if name in self.pointers:
-            self.pointers[name]['value'] = value
-            print(f"Записано {value} в {name}")
-    
-    def read_pointer(self, name):
-        if name in self.pointers:
-            return self.pointers[name]['value']
-        return "Указатель не найден"
-    
-    def free_pointer(self, name):
-        if name in self.pointers:
-            info = self.pointers[name]
-            seg, offset, size = info['segment'], info['offset'], info['size']
-            
-            # Освобождаем память
-            for i in range(size):
-                self.segments[seg][offset + i] = None
-            
-            del self.pointers[name]
-            free = self.get_free_space()
-            print(f"Освобожден {name}. Свободно: {free}")
+    def print_list(self):
+        """Печать списка"""
+        current = self.head
+        while current is not None:
+            print(current.value, end=" -> ")
+            current = current.next
+        print("None")
 
-# Демонстрация
-mm = MemoryManager()
+# Демонстрация работы
+lst = LinkedList()
+lst.add(5)
+lst.add(2)
+lst.add(8)
+lst.add(1)
+lst.add(9)
 
-# Создаем указатели
-mm.create_pointer('p1', 'byte')
-mm.create_pointer('p2', 'int') 
-mm.create_pointer('p3', 'longint')
-mm.create_pointer('p4', 'byte')
+print("Исходный список:")
+lst.print_list()
 
-# Работаем с указателями
-mm.write_pointer('p1', 10)
-mm.write_pointer('p2', 1000)
-print(f"p1 = {mm.read_pointer('p1')}")
+# Поиск существующего элемента
+result = lst.search_with_barrier(8)
+print(f"\nНайден элемент: {result.value if result else 'Не найден'}")
 
-# Освобождаем память
-mm.free_pointer('p2')
+# Поиск несуществующего элемента
+result = lst.search_with_barrier(15)
+print(f"Найден элемент: {result.value if result else 'Не найден'}")
+
+print("\nСписок после поиска (не изменился):")
+lst.print_list()
