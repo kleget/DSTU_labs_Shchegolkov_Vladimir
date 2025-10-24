@@ -1,5 +1,5 @@
-import numpy as np
 from sympy import symbols, sympify, lambdify
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -102,11 +102,11 @@ def bisection_method():
     func_str = input("Введите функцию f(x) (например, tan(x)**3 - x + 1): ").strip()
     a_str = input("Введите левую границу a (например, -1.0): ").strip()
     b_str = input("Введите правую границу b (например, 0.5): ").strip()
-    eps_str = input("Введите точность ε (по умолчанию 0.001): ").strip()
+    eps_str = input("Введите точность ε (по умолчанию 0.00001): ").strip()
     
     # Установка точности по умолчанию
     if not eps_str:
-        eps_str = "0.001"
+        eps_str = "0.00001"
     
     # Проверка корректности введенных данных
     errors = validate_input(func_str, a_str, b_str, eps_str)
