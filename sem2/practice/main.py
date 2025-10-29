@@ -1,6 +1,6 @@
-from sympy import symbols, sympify, lambdify
-import numpy as np
-import matplotlib.pyplot as plt
+from sympy import symbols, sympify, lambdify  #текст в функцию
+import numpy as np                            #работает с массивами для построения графиков
+import matplotlib.pyplot as plt               #рисует график функции
 
 
 def validate_input(func_str, a_str, b_str, eps_str):
@@ -149,7 +149,7 @@ def bisection_method():
         
         # Заголовок таблицы итераций
         print("\n" + "=" * 80)
-        print(f"{'n':<3} {'a':<15} {'b':<15} {'c':<15} {'f(c)':<15}")
+        print(f"{'n':<3} {'c':<20} {'f(c)':<20}")
         print("-" * 80)
         
         # ОСНОВНОЙ ЦИКЛ МЕТОДА ПОЛОВИННОГО ДЕЛЕНИЯ
@@ -159,15 +159,15 @@ def bisection_method():
             fc = f(c)            # Значение функции в середине
             
             # Вывод информации о текущей итерации
-            print(f"{iteration:<3} {a:<15.8f} {b:<15.8f} {c:<15.8f} {fc:<15.8e}")
+            print(f"{iteration:<3} {c:<20.15f} {fc:<20.15f}")
             
             # Критерии остановки:
             # 1. Найден точный корень (значение функции очень близко к 0)
-            if abs(fc) < 1e-12:
-                break
+            # if abs(fc) < 1e-12:
+            #     break
                 
             # 2. Достигнута требуемая точность
-            if abs(fc) <= eps and abs(b - a) <= eps:
+            if abs(b - a) <= eps:
                 break
             
             # Выбор нового интервала: выбираем ту половину, где функция меняет знак
