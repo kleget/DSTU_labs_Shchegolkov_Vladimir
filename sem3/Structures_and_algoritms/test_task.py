@@ -1,82 +1,85 @@
 class Node:
-    """Узел односвязного списка"""
     def __init__(self, value):
         self.value = value
         self.next = None
 
 class LinkedList:
-    """Односвязный список с поиском с барьером"""
-    
     def __init__(self):
         self.head = None
     
-    def add(self, value):
-        """Добавление элемента в конец списка"""
+    def add_sorted(self, value):
+        """Добавляем элемент в отсортированный список"""
         new_node = Node(value)
-        if self.head is None:
+        
+        if not self.head or value < self.head.value:
+            new_node.next = self.head
             self.head = new_node
-        else:
-            current = self.head
-            while current.next is not None:
-                current = current.next
-            current.next = new_node
+            return
+        
+        current = self.head
+        while current.next and current.next.value < value:
+            current = current.next
+        
+        new_node.next = current.next
+        current.next = new_node
     
-    def search_with_barrier(self, target):
-        """Поиск с барьером"""
-        if self.head is None:
-            return None
-        
-        # Создаем барьерный узел с искомым значением
-        barrier = Node(target)
-        
-        # Находим последний узел и прикрепляем к нему барьер
+    def get_node(self, index):
+        """Получаем узел по индексу (медленно!)"""
         current = self.head
-        while current.next is not None:
+        for i in range(index):
+            if not current:
+                return None
             current = current.next
-        current.next = barrier
-        
-        # Теперь ищем целевой элемент
-        current = self.head
-        while current.value != target:
-            current = current.next
-        
-        # Удаляем барьер
-        current = self.head
-        while current.next != barrier:
-            current = current.next
-        current.next = None
-        
-        # Проверяем, нашли ли мы целевой элемент или барьер
-        if current.value == target:
-            return current
-        return None
+        return current
     
-    def print_list(self):
-        """Печать списка"""
+    def length(self):
+        """Считаем длину списка"""
+        count = 0
         current = self.head
-        while current is not None:
+        while current:
+            count += 1
+            current = current.next
+        return count
+    
+    def binary_search(self, target):
+        """Бинарный поиск в связном списке"""
+        left, right = 0, self.length() - 1
+        
+        while left <= right:
+            mid = (left + right) // 2
+            mid_node = self.get_node(mid)
+            
+            if not mid_node:
+                return -1
+            
+            if mid_node.value == target:
+                return mid
+            elif mid_node.value < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        return -1
+    
+    def display(self):
+        """Показываем список"""
+        current = self.head
+        while current:
             print(current.value, end=" -> ")
             current = current.next
         print("None")
 
-# Демонстрация работы
+# Демонстрация
 lst = LinkedList()
-lst.add(5)
-lst.add(2)
-lst.add(8)
-lst.add(1)
-lst.add(9)
 
-print("Исходный список:")
-lst.print_list()
+# Создаем отсортированный список
+for num in [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]:
+    lst.add_sorted(num)
 
-# Поиск существующего элемента
-result = lst.search_with_barrier(8)
-print(f"\nНайден элемент: {result.value if result else 'Не найден'}")
+print("Список:")
+lst.display()
 
-# Поиск несуществующего элемента
-result = lst.search_with_barrier(15)
-print(f"Найден элемент: {result.value if result else 'Не найден'}")
-
-print("\nСписок после поиска (не изменился):")
-lst.print_list()
+# Ищем элементы
+print(f"\nПоиск 16: индекс {lst.binary_search(16)}")
+print(f"Поиск 38: индекс {lst.binary_search(38)}") 
+print(f"Поиск 100: индекс {lst.binary_search(100)}")

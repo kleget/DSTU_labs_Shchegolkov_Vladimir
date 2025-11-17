@@ -6,22 +6,24 @@ public class Task2 {
         
         System.out.print("Введите количество строк: ");
         int rows = scanner.nextInt();
+
+        System.out.print("Введите количество столбцов: ");
+        int cols = scanner.nextInt();
         
-        int[][] matrix = new int[rows][];
-        
-        // Ввод рваного массива
-        for (int i = 0; i < rows; i++) {
-            System.out.print("Введите количество элементов в строке " + (i+1) + ": ");
-            int cols = scanner.nextInt();
-            matrix[i] = new int[cols];
-            
-            System.out.print("Введите " + cols + " элементов через пробел: ");
-            for (int j = 0; j < cols; j++) {
+        int[][] matrix = new int[rows][cols];
+
+
+        for (int i=0; i < rows; i++){
+            for (int j=0; j < cols; j++){
+                System.out.print("Введите числа для строки " + i + " столбца " + j + ": ");
+                // int num = scanner.nextInt();
                 matrix[i][j] = scanner.nextInt();
             }
         }
+
+
         
-        // Поиск наибольшего отрицательного
+
         int maxNegative = Integer.MIN_VALUE;
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
