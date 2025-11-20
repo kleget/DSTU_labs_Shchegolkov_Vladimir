@@ -1,158 +1,163 @@
-# """
-# Используем метод половинного деления для 
-# нахождения корней уравнения.
-# """
-
-# import math
-
-
-# def half_interval(a, b):
-#     """Метод делит интервал по полам"""
-#     return (a + b) / 2
-
-
-# def get_parametr():
-#     """Получить данные от пользователя"""
-#     a = int(input("Введите точку a :"))
-#     b = int(input("Введите точку b :"))
-#     E = float(input("Введите точность E:"))
-
-#     print('a = {a} Тип:{a1}\nb = {b} Тип {b1}\nE = {E} Тип:{E1}'
-#       .format(a=a, a1=type(a), b=b, b1=type(b), E=E, E1=type(E))
-#       )
-#     return a, b, E
-
-
-# def func(x):
-#     """
-#     Вычисляем значение функции, в качестве примера
-#     2 cos x -7x = 0
-#     """
-#     return 2 * math.cos(x) - 7 * x
-
-
-# def start():
-#     """
-#     Старт программы
-#     """
-#     a, b, E = get_parametr()
-#     counter = 0
-#     max_counter = 200
-
-#     while abs(b - a) > E:
-
-#         counter += 1
-#         if counter >= max_counter:
-#             print('Слишком много шагов')
-#             break
-
-#         if abs(b - a) <= E:
-#             print('Значение math.abs(b-a) стало меньше чем E')
-#             break
-
-#         print('\n\nШаг №{counter}'.format(counter=counter))
-
-#         fa = func(a)
-#         c = half_interval(a, b)
-#         fc = func(c)
-#         if fa * fc >= 0:
-#             a = c
-#         else:
-#             b = c
-#         print('fa = {f_a} fc = {f_c} fa * fc = {res}'.format(f_a=fa, f_c=fc, res=fa * fc))
-#         print('a = {a} b = {b}'.format(a=a, b=b))
-
-
-# # Запуск программы
-# start()
-
-import math
-import matplotlib.pyplot as plt
+from sympy import symbols, sympify, lambdify
 import numpy as np
+import matplotlib.pyplot as plt
 
-def bisection(f, a, b, eps=1e-5, max_iter=1000):
-    """
-    Реализация метода половинного деления для решения уравнения f(x) = 0.
+
+def validate_input(func_str, a_str, b_str, eps_str):
+    errors = []
+    if not func_str.strip():
+        errors.append("Функция не введена")
+    else:
+        try:
+            x = symbols("x")
+            sympify(func_str)
+        except Exception as e:
+            errors.append(f"Ошибка в функции: {str(e)}")
     
-    Параметры:
-        f: Функция уравнения.
-        a, b: Границы интервала [a, b].
-        eps: Требуемая точность (по умолчанию 1e-5).
-        max_iter: Максимальное число итераций (по умолчанию 1000).
-    
-    Возвращает:
-        x: Найденный корень.
-        f_x: Значение функции в корне.
-        n: Количество итераций.
-    """
-    if f(a) * f(b) > 0:
-        raise ValueError("Функция должна иметь разные знаки на концах интервала")
-    
-    n = 0
-    while (b - a) > eps and n < max_iter:
-        x = (a + b) / 2
-        f_x = f(x)
-        n += 1
+    try:
+        a_val = float(a_str)
+    except ValueError:
+        errors.append("Левая граница 'a' должна быть числом")
         
-        if f_x == 0:
-            return x, f_x, n
-            
-        if f(a) * f_x < 0:
-            b = x
-        else:
-            a = x
+    try:
+        b_val = float(b_str)
+    except ValueError:
+        errors.append("Правая граница 'b' должна быть числом")
+        
+    if len(errors) == 0 and a_val >= b_val:
+        errors.append("Левая граница 'a' должна быть меньше правой границы 'b'")
+        
+    try:
+        eps = float(eps_str)
+        if eps <= 0:
+            errors.append("Точность 'ε' должна быть положительным числом")
+    except ValueError:
+        errors.append("Точность 'ε' должна быть числом")
+        
+    return errors
+
+
+def draw_function_plot(func_str, root, a, b):
+    try:
+        x = symbols("x")
+        f_expr = sympify(func_str)
+        f = lambdify(x, f_expr, modules=["numpy"])
+
+        x_min = min(a, b, root) - 0.5
+        x_max = max(a, b, root) + 0.5
+        x_vals = np.linspace(x_min, x_max, 1000)
+
+        with np.errstate(all="ignore"):
+            y_vals = f(x_vals)
+            valid_mask = np.isfinite(y_vals)
+            x_vals = x_vals[valid_mask]
+            y_vals = y_vals[valid_mask]
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(x_vals, y_vals, color="#4a90e2", label=f"f(x) = {func_str}")
+        plt.axhline(0, color="gray", linewidth=0.8)
+        plt.axvline(0, color="gray", linewidth=0.8)
+        plt.scatter([root], [0], color="red", s=50, label=f"Корень: {root:.6f}")
+        plt.scatter([a, b], [f(a), f(b)], color="green", s=30, label="Границы")
+
+        plt.grid(True, color="#cccccc", linestyle="--", linewidth=0.5)
+        plt.legend()
+        plt.gca().set_facecolor("#ffffff")
+        plt.title("График функции и найденный корень")
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+        plt.tight_layout()
+        plt.show()
+        
+    except Exception as e:
+        print(f"Не удалось построить график функции: {str(e)}")
+        print("Возможно, функция не определена на всем интервале или имеет особенности.")
+
+
+def bisection_method():
+    print("=" * 60)
+    print("МЕТОД ПОЛОВИННОГО ДЕЛЕНИЯ")
+    print("=" * 60)
     
-    x = (a + b) / 2
-    f_x = f(x)
-    return x, f_x, n
+    func_str = input("Введите функцию f(x) (например, tan(x)**3 - x + 1): ").strip()
+    a_str = input("Введите левую границу a (например, -1.0): ").strip()
+    b_str = input("Введите правую границу b (например, 0.5): ").strip()
+    eps_str = input("Введите точность ε (по умолчанию 0.00001): ").strip()
+    
+    if not eps_str:
+        eps_str = "0.00001"
+    
+    errors = validate_input(func_str, a_str, b_str, eps_str)
+    if errors:
+        print("\nОшибки во входных данных:")
+        for error in errors:
+            print(f"• {error}")
+        return
+    
+    try:
+        a_val = float(a_str)
+        b_val = float(b_str)
+        eps = float(eps_str)
+        
+        x = symbols("x")
+        f_expr = sympify(func_str)
+        f = lambdify(x, f_expr, modules=["numpy"])
+        
+        fa = f(a_val)
+        fb = f(b_val)
+        
+        if fa * fb > 0:
+            print("\n❌ Условия сходимости не выполнены!")
+            print(f"Для метода половинного деления требуется, чтобы функция имела разные знаки на концах интервала.")
+            print(f"Текущие значения:")
+            print(f"f({a_val:.3f}) = {fa:.3f}")
+            print(f"f({b_val:.3f}) = {fb:.3f}")
+            print("Пожалуйста, выберите другой интервал [a, b], где функция меняет знак.")
+            return
+        
+        a = a_val
+        b = b_val
+        iteration = 0
+        max_iterations = 1000
+        
+        print("\n" + "=" * 80)
+        print(f"{'n':<3} {'c':<20} {'f(c)':<20}")
+        print("-" * 80)
+        
+        while iteration < max_iterations:
+            iteration += 1
+            c = (a + b) / 2
+            fc = f(c)
 
-# Уравнение 1: 5*sin(x) = x - 1  →  5*sin(x) - x + 1 = 0
-def eq1(x):
-    return 5 * math.sin(x) - x + 1
+            print(f"{iteration:<3} {c:<20.15f} {fc:<20.15f}")
+            
+            if abs(b - a) <= eps:
+                break
+            
+            if f(a) * fc > 0:
+                a = c
+            else:
+                b = c
+        
+        root = (a + b) / 2
+        print("-" * 80)
+        
+        if iteration == max_iterations:
+            print("Предупреждение: Достигнуто максимальное число итераций. Решение может быть неточным.")
+        
+        print(f"\nРЕЗУЛЬТАТ:")
+        print(f"Корень: {root:.8f}")
+        print(f"Значение функции: {f(root):.3e}")
+        print(f"Количество итераций: {iteration}")
+        
+        plot_choice = input("\nПостроить график? (y/n): ").strip().lower()
+        if plot_choice in ['y', 'yes', 'д', 'да']:
+            draw_function_plot(func_str, root, a_val, b_val)
+            
+    except Exception as e:
+        print(f"\nОшибка при выполнении вычислений: {str(e)}")
+        print("Проверьте корректность введенной функции и параметров.")
 
-# Уравнение 2: arctg(x-1) + 2*x = 0
-def eq2(x):
-    return math.atan(x - 1) + 2 * x
 
-# Точность
-eps = 1e-5
-
-# Решение уравнения 1 на интервале [-2, 0]
-x1, f1, n1 = bisection(eq1, -2, 0, eps)
-print(f"Уравнение 1: x = {x1:.6f}, f(x) = {f1:.6e}, итераций: {n1}")
-
-# Решение уравнения 1 на интервале [2.5, 3] (второй корень)
-x2, f2, n2 = bisection(eq1, 2.5, 3, eps)
-print(f"Уравнение 1 (второй корень): x = {x2:.6f}, f(x) = {f2:.6e}, итераций: {n2}")
-
-# Решение уравнения 2 на интервале [0, 1]
-x3, f3, n3 = bisection(eq2, 0, 1, eps)
-print(f"Уравнение 2: x = {x3:.6f}, f(x) = {f3:.6e}, итераций: {n3}")
-
-# Визуализация
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-
-# График для уравнения 1
-x_vals = np.linspace(-3, 4, 500)
-y_vals1 = [eq1(x) for x in x_vals]
-axes[0].plot(x_vals, y_vals1, 'b-', label=r'$5\sin(x) - x + 1$')
-axes[0].axhline(0, color='k', linewidth=0.5)
-axes[0].scatter([x1, x2], [0, 0], c='red', label='Корни')
-axes[0].set_title('Уравнение: $5\sin(x) = x - 1$')
-axes[0].set_xlabel('x')
-axes[0].set_ylabel('f(x)')
-axes[0].legend()
-axes[0].grid()
-
-# График для уравнения 2
-y_vals2 = [eq2(x) for x in x_vals]
-axes[1].plot(x_vals, y_vals2, 'g-', label=r'$arctg(x-1) + 2x$')
-axes[1].axhline(0, color='k', linewidth=0.5)
-axes[1].scatter([x3], [0], c='red', label='Корень')
-axes[1].set_title('Уравнение: $arctg(x-1) + 2x = 0$')
-axes[1].set_xlabel('x')
-axes[1].legend()
-axes[1].grid()
-
-plt.tight_layout()
-plt.show()
+if __name__ == "__main__":
+    bisection_method()
