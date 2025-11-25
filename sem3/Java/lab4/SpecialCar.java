@@ -1,4 +1,3 @@
-// File: lab4/SpecialCar.java
 package lab4;
 
 public class SpecialCar extends Car {
@@ -10,11 +9,10 @@ public class SpecialCar extends Car {
         this(brand, color, engine, null);
     }
 
-    // Пример: специальный формат - XX 0000 00 RUS
     @Override
     protected boolean isValidRegistrationNumber(String regNumber) {
         if (regNumber == null) return false;
-        String regex = "[ABEKMHOPCTYX]{2}\\s\\d{4}\\s\\d{2}\\sRUS";
+        String regex = "[АВЕКМНОРСТУХ]\\s?\\d{3}\\s?[АВЕКМНОРСТУХ]{2}\\s?\\d{2}\\s?(?:RUS)?";
         return regNumber.matches(regex);
     }
 

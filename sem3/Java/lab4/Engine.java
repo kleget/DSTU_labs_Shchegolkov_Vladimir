@@ -1,4 +1,3 @@
-// File: lab4/Engine.java
 package lab4;
 
 public class Engine {

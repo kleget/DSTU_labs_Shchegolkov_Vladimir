@@ -1,9 +1,8 @@
-// File: lab4/Truck.java
 package lab4;
 
 public class Truck extends Car {
     public Truck(String brand, String color, Engine engine, String registrationNumber) {
-        super(brand, color, engine, 6, registrationNumber); // Пример: грузовик с 6 колесами
+        super(brand, color, engine, 6, registrationNumber); // Грузовик с 6 колесами
     }
 
     public Truck(String brand, String color, Engine engine) {
@@ -13,7 +12,7 @@ public class Truck extends Car {
     @Override
     protected boolean isValidRegistrationNumber(String regNumber) {
         if (regNumber == null) return false;
-        String regex = "[ABEKMHOPCTYX]\\s\\d{3}\\s[ABEKMHOPCTYX]{2}\\s(\\d{2}|\\d{3})\\sRUS";
+        String regex = "[АВЕКМНОРСТУХ]\\s?\\d{3}\\s?[АВЕКМНОРСТУХ]{2}\\s?\\d{2}\\s?(?:RUS)?";
         return regNumber.matches(regex);
     }
 

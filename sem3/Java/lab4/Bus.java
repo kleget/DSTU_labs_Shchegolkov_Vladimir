@@ -1,9 +1,8 @@
-// File: lab4/Bus.java
 package lab4;
 
 public final class Bus extends Car { // Задание 6: запретить наследование
     public Bus(String brand, String color, Engine engine, String registrationNumber) {
-        super(brand, color, engine, 6, registrationNumber); // Пример: автобус с 6 колесами
+        super(brand, color, engine, 6, registrationNumber);
     }
 
     public Bus(String brand, String color, Engine engine) {

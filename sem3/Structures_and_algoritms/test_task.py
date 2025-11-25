@@ -1,85 +1,86 @@
-class Node:
-    def __init__(self, value):
-        self.value = value
-        self.next = None
+class User:
+    def __init__(self, name, order_id):
+        self.name = name
+        self.order_id = order_id
+    
+    def __str__(self):
+        return f"{self.name} - заказ {self.order_id}"
 
-class LinkedList:
+class UserTree:
     def __init__(self):
-        self.head = None
+        self.root = None
     
-    def add_sorted(self, value):
-        """Добавляем элемент в отсортированный список"""
-        new_node = Node(value)
+    def add(self, name, order_id):
+        """Добавить пользователя"""
+        new_user = User(name, order_id)
         
-        if not self.head or value < self.head.value:
-            new_node.next = self.head
-            self.head = new_node
-            return
-        
-        current = self.head
-        while current.next and current.next.value < value:
-            current = current.next
-        
-        new_node.next = current.next
-        current.next = new_node
+        if self.root is None:
+            self.root = self.Node(new_user)
+        else:
+            self._add(self.root, new_user)
     
-    def get_node(self, index):
-        """Получаем узел по индексу (медленно!)"""
-        current = self.head
-        for i in range(index):
-            if not current:
-                return None
-            current = current.next
-        return current
+    class Node:
+        def __init__(self, user):
+            self.user = user
+            self.left = None
+            self.right = None
     
-    def length(self):
-        """Считаем длину списка"""
-        count = 0
-        current = self.head
-        while current:
-            count += 1
-            current = current.next
-        return count
-    
-    def binary_search(self, target):
-        """Бинарный поиск в связном списке"""
-        left, right = 0, self.length() - 1
-        
-        while left <= right:
-            mid = (left + right) // 2
-            mid_node = self.get_node(mid)
-            
-            if not mid_node:
-                return -1
-            
-            if mid_node.value == target:
-                return mid
-            elif mid_node.value < target:
-                left = mid + 1
+    def _add(self, node, new_user):
+        if new_user.order_id < node.user.order_id:
+            if node.left is None:
+                node.left = self.Node(new_user)
             else:
-                right = mid - 1
-        
-        return -1
+                self._add(node.left, new_user)
+        else:
+            if node.right is None:
+                node.right = self.Node(new_user)
+            else:
+                self._add(node.right, new_user)
     
-    def display(self):
-        """Показываем список"""
-        current = self.head
-        while current:
-            print(current.value, end=" -> ")
-            current = current.next
-        print("None")
+    def find(self, order_id):
+        """Найти пользователя по номеру заказа"""
+        return self._find(self.root, order_id)
+    
+    def _find(self, node, order_id):
+        if node is None:
+            return None
+        
+        if node.user.order_id == order_id:
+            return node.user
+        elif order_id < node.user.order_id:
+            return self._find(node.left, order_id)
+        else:
+            return self._find(node.right, order_id)
+    
+    def show_all(self):
+        """Показать всех пользователей по порядку"""
+        users = []
+        self._get_sorted(self.root, users)
+        return users
+    
+    def _get_sorted(self, node, users):
+        if node:
+            self._get_sorted(node.left, users)
+            users.append(node.user)
+            self._get_sorted(node.right, users)
 
-# Демонстрация
-lst = LinkedList()
+# Простое использование
+db = UserTree()
 
-# Создаем отсортированный список
-for num in [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]:
-    lst.add_sorted(num)
+# Добавляем пользователей
+db.add("Иван", 1003)
+db.add("Мария", 1001) 
+db.add("Алексей", 1005)
+db.add("Ольга", 1002)
+db.add("Дмитрий", 1004)
 
-print("Список:")
-lst.display()
+# Ищем заказы
+print("Поиск заказов:")
+print(f"Заказ 1001: {db.find(1001)}")
+print(f"Заказ 1003: {db.find(1003)}")
+print(f"Заказ 999: {db.find(999)}")
 
-# Ищем элементы
-print(f"\nПоиск 16: индекс {lst.binary_search(16)}")
-print(f"Поиск 38: индекс {lst.binary_search(38)}") 
-print(f"Поиск 100: индекс {lst.binary_search(100)}")
+# Показываем всех
+print("\nВсе пользователи (отсортировано):")
+for user in db.show_all():
+    print(f" - {user}")

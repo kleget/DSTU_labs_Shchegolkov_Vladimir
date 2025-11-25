@@ -1,4 +1,3 @@
-// File: lab4/Sedan.java
 package lab4;
 
 public class Sedan extends Car {

@@ -1,4 +1,3 @@
-// File: lab4/Garage.java
 package lab4;
 
 enum CarStatus {
@@ -31,7 +30,6 @@ public class Garage {
     public boolean removeCar(Car car) {
         for (int i = 0; i < currentSize; i++) {
             if (cars[i] == car) {
-                // Сдвигаем массив влево
                 for (int j = i; j < currentSize - 1; j++) {
                     cars[j] = cars[j + 1];
                     statuses[j] = statuses[j + 1];
