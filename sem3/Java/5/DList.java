@@ -3,15 +3,18 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Два синхронизированных списка: значение и список значений.
+ * Два синхронизированных списка: значение и связанные с ним варианты (список списков).
  */
 public class DList<T1, T2> {
     private final List<T1> first = new ArrayList<>();
-    private final List<List<T2>> second = new ArrayList<>();
+    private final List<List<List<T2>>> second = new ArrayList<>();
 
-    public void add(T1 value, List<T2> values) {
+    /**
+     * Добавляет значение и набор списков, связанный с ним.
+     */
+    public void add(T1 value, List<List<T2>> variants) {
         first.add(value);
-        second.add(new ArrayList<>(values));
+        second.add(new ArrayList<>(variants));
     }
 
     public int size() {
@@ -22,11 +25,11 @@ public class DList<T1, T2> {
         return first.get(index);
     }
 
-    public List<T2> getSecond(int index) {
+    public List<List<T2>> getSecond(int index) {
         return second.get(index);
     }
 
-    public Optional<List<T2>> getByFirstValue(T1 value) {
+    public Optional<List<List<T2>>> getByFirstValue(T1 value) {
         int idx = first.indexOf(value);
         if (idx >= 0) {
             return Optional.of(second.get(idx));
