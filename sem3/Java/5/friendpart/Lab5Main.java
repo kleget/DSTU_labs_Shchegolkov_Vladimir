@@ -1,3 +1,13 @@
+package friendpart;
+
+import mypart.Bag;
+import mypart.CoinChangeSolver;
+import mypart.DList;
+import mypart.GPairBag;
+import mypart.GenericPairBag;
+import mypart.Pair;
+import mypart.PairBag;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -81,9 +91,8 @@ public class Lab5Main {
 
     private static void demoTournament() {
         System.out.println("== Турнир ==");
-        // пустой ввод => победители выбираются случайно
         Scanner scanner = new Scanner(new ByteArrayInputStream(new byte[0]), StandardCharsets.UTF_8);
-        Tournament tournament = new Tournament(6); // число нормализуется до 8
+        Tournament tournament = new Tournament(6);
         String winner = tournament.run(scanner);
         System.out.println("Победитель: " + winner);
     }

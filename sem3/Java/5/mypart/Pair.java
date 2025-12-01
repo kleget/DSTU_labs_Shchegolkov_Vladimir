@@ -1,3 +1,5 @@
+package mypart;
+
 import java.util.Objects;
 
 /**
@@ -12,9 +14,6 @@ public class Pair<A, B> {
         this.second = second;
     }
 
-    /**
-     * Статический фабричный метод в стиле make_pair из C++.
-     */
     public static <A, B> Pair<A, B> makePair(A first, B second) {
         return new Pair<>(first, second);
     }
@@ -42,12 +41,8 @@ public class Pair<A, B> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Pair<?, ?> pair)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Pair<?, ?> pair)) return false;
         return Objects.equals(first, pair.first) && Objects.equals(second, pair.second);
     }
 

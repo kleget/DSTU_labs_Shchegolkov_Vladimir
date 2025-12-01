@@ -1,3 +1,5 @@
+package friendpart;
+
 /**
  * Абстрактная хэш-функция. Потомок знает, как превратить ключ в число.
  */
@@ -11,9 +13,6 @@ public abstract class HashFunction<K> {
         this.tableSize = tableSize;
     }
 
-    /**
-     * Отдает корректный индекс в пределах таблицы.
-     */
     public final int index(K key) {
         int raw = Math.abs(hash(key));
         return raw % tableSize;
@@ -23,8 +22,5 @@ public abstract class HashFunction<K> {
         return tableSize;
     }
 
-    /**
-     * Сырое значение до нормализации по размеру таблицы.
-     */
     protected abstract int hash(K key);
 }

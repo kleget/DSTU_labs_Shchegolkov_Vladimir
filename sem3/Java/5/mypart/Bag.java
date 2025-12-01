@@ -1,3 +1,5 @@
+package mypart;
+
 import java.util.Random;
 
 /**
@@ -16,17 +18,13 @@ public class Bag {
         this.data = new Object[capacity];
     }
 
-    /**
-     * Добавляет элемент в случайную позицию.
-     */
     public void add(Object value) {
         if (size == data.length) {
             throw new IllegalStateException("Мешок заполнен");
         }
         int insertIndex = randomIndex(size + 1);
-        data[size] = value; // кладем в конец
+        data[size] = value;
         if (insertIndex != size) {
-            // меняем местами, чтобы новый элемент оказался в случайной позиции
             Object tmp = data[insertIndex];
             data[insertIndex] = data[size];
             data[size] = tmp;
@@ -34,25 +32,18 @@ public class Bag {
         size++;
     }
 
-    /**
-     * Забирает и возвращает случайный элемент.
-     */
     public Object remove() {
         if (isEmpty()) {
             throw new IllegalStateException("Мешок пуст");
         }
         int index = randomIndex(size);
         Object value = data[index];
-        // Переносим последний элемент на освободившееся место
         data[index] = data[size - 1];
         data[size - 1] = null;
         size--;
         return value;
     }
 
-    /**
-     * Возвращает случайный элемент без удаления.
-     */
     public Object peek() {
         if (isEmpty()) {
             throw new IllegalStateException("Мешок пуст");

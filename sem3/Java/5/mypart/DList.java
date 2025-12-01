@@ -1,3 +1,5 @@
+package mypart;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -9,9 +11,6 @@ public class DList<T1, T2> {
     private final List<T1> first = new ArrayList<>();
     private final List<List<List<T2>>> second = new ArrayList<>();
 
-    /**
-     * Добавляет значение и набор списков, связанный с ним.
-     */
     public void add(T1 value, List<List<T2>> variants) {
         first.add(value);
         second.add(new ArrayList<>(variants));

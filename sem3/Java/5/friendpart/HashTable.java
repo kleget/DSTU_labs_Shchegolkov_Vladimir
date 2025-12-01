@@ -1,3 +1,5 @@
+package friendpart;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,24 +22,15 @@ public class HashTable<T extends Keyed<K>, K> {
         }
     }
 
-    /**
-     * Добавление элемента в соответствующий список.
-     */
     public void add(T value) {
         int index = hashFunction.index(value.key());
         buckets.get(index).add(value);
     }
 
-    /**
-     * Проверка наличия по ключу.
-     */
     public boolean contains(K key) {
         return findFirst(key).isPresent();
     }
 
-    /**
-     * Возврат первого совпадения по ключу.
-     */
     public Optional<T> findFirst(K key) {
         int index = hashFunction.index(key);
         for (T value : buckets.get(index)) {

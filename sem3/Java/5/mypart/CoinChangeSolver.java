@@ -1,3 +1,5 @@
+package mypart;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,11 +39,9 @@ public class CoinChangeSolver {
 
         DList<Integer, Integer> table = new DList<>();
         for (int sum = 1; sum <= amount; sum++) {
-            // сортируем варианты для стабильного вывода
             for (List<Integer> variant : combos[sum]) {
                 Collections.sort(variant);
             }
-            // убираем дубликаты вариантов
             combos[sum] = removeDuplicates(combos[sum]);
             table.add(sum, combos[sum]);
         }
