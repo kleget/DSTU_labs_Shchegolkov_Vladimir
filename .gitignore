@@ -1,3 +1,5 @@
 .idea/
 venv/
 test.py
+*.class
+*.txt

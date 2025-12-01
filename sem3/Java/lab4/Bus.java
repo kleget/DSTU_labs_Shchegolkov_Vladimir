@@ -21,3 +21,4 @@ public final class Bus extends Car { // Задание 6: запретить н�
         return "Bus{" + super.toString().substring(4) + "}";
     }
 }
+
