@@ -2,10 +2,7 @@ package mypart;
 
 import java.util.Random;
 
-/**
- * Необобщенный мешок фиксированного размера.
- * Элементы кладутся и достаются из случайных позиций.
- */
+
 public class Bag {
     private final Object[] data;
     private int size = 0;

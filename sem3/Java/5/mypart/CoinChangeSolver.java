@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Решение задачи выдачи суммы монетами динамическим программированием.
- * Таблица хранится в DList: первая колонка - сумма, вторая - список вариантов.
- */
+
 public class CoinChangeSolver {
 
     public static DList<Integer, Integer> buildTable(int amount, int[] coins) {

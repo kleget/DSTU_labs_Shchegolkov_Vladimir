@@ -14,9 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Небольшая демонстрация всех заданий.
- */
+
 public class Lab5Main {
     public static void main(String[] args) {
         demoPairAndBag();

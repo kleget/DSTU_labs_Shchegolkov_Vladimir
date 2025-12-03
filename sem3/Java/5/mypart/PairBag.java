@@ -1,9 +1,6 @@
 package mypart;
 
-/**
- * Мешок, который принимает только пары.
- * Необобщенная версия - пары могут быть с любыми типами внутри.
- */
+
 public class PairBag extends Bag {
 
     public PairBag(int capacity) {

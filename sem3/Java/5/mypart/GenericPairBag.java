@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Обобщенный мешок пар, но уже на стандартном контейнере.
- */
+
+
 public class GenericPairBag<T1, T2> {
     private final List<Pair<T1, T2>> list = new ArrayList<>();
     private final Random random = new Random();

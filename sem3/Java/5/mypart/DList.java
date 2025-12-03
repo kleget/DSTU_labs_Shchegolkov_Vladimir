@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Два синхронизированных списка: значение и связанные с ним варианты (список списков).
- */
+
 public class DList<T1, T2> {
     private final List<T1> first = new ArrayList<>();
     private final List<List<List<T2>>> second = new ArrayList<>();

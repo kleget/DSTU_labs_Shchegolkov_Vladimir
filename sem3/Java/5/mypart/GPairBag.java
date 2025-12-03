@@ -1,9 +1,6 @@
 package mypart;
 
-/**
- * Обобщенный мешок только для пар одного типа.
- * Использует уже готовый класс Bag внутри.
- */
+
 public class GPairBag<T1, T2> {
     private final Bag bag;
 
