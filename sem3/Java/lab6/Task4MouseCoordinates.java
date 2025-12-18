@@ -12,9 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- * Максимально простая панель: щёлкнул — увидел координаты, буквой сменил цвет.
- */
+
 public class Task4MouseCoordinates extends JFrame {
     public Task4MouseCoordinates() {
         super("Task 4");

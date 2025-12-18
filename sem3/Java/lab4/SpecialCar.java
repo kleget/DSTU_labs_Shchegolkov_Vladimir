@@ -1,8 +1,10 @@
 package lab4;
 
 public class SpecialCar extends Car {
+    private static final String REGEX = "[A-Z]{2}-\\d{4}";
+
     public SpecialCar(String brand, String color, Engine engine, String registrationNumber) {
-        super(brand, color, engine, 4, registrationNumber);
+        super(brand, CarType.SPECIAL, color, engine, 4, registrationNumber);
     }
 
     public SpecialCar(String brand, String color, Engine engine) {
@@ -10,14 +12,12 @@ public class SpecialCar extends Car {
     }
 
     @Override
-    protected boolean isValidRegistrationNumber(String regNumber) {
-        if (regNumber == null) return false;
-        String regex = "[АВЕКМНОРСТУХ]\\s?\\d{3}\\s?[АВЕКМНОРСТУХ]{2}\\s?\\d{2}\\s?(?:RUS)?";
-        return regNumber.matches(regex);
+    protected String registrationPattern() {
+        return REGEX;
     }
 
     @Override
     public String toString() {
-        return "SpecialCar{" + super.toString().substring(4);
+        return "SpecialCar{" + baseInfo() + "}";
     }
 }

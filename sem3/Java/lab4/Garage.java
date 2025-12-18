@@ -1,7 +1,9 @@
 package lab4;
 
 enum CarStatus {
-    AT_BASE, IN_MISSION, IN_REPAIR
+    AT_BASE,
+    IN_MISSION,
+    IN_REPAIR
 }
 
 public class Garage {
@@ -10,6 +12,9 @@ public class Garage {
     private int currentSize;
 
     public Garage(int maxCapacity) {
+        if (maxCapacity <= 0) {
+            throw new IllegalArgumentException("maxCapacity must be positive");
+        }
         this.cars = new Car[maxCapacity];
         this.statuses = new CarStatus[maxCapacity];
         this.currentSize = 0;
@@ -17,13 +22,13 @@ public class Garage {
 
     public boolean addCar(Car car) {
         if (currentSize >= cars.length) {
-            System.out.println("Гараж полон.");
+            System.out.println("Garage is full.");
             return false;
         }
         cars[currentSize] = car;
         statuses[currentSize] = CarStatus.AT_BASE;
         currentSize++;
-        System.out.println("Автомобиль добавлен на базу.");
+        System.out.println("Car added to base.");
         return true;
     }
 
@@ -34,96 +39,68 @@ public class Garage {
                     cars[j] = cars[j + 1];
                     statuses[j] = statuses[j + 1];
                 }
+                cars[currentSize - 1] = null;
+                statuses[currentSize - 1] = null;
                 currentSize--;
-                System.out.println("Автомобиль списан.");
+                System.out.println("Car removed from base.");
                 return true;
             }
         }
-        System.out.println("Автомобиль не найден в гараже.");
+        System.out.println("Car not found.");
         return false;
     }
 
     public boolean sendToMission(Car car) {
-        for (int i = 0; i < currentSize; i++) {
-            if (cars[i] == car && statuses[i] == CarStatus.AT_BASE) {
-                statuses[i] = CarStatus.IN_MISSION;
-                System.out.println("Автомобиль отправлен в рейс.");
-                return true;
-            }
-        }
-        System.out.println("Автомобиль не на базе или не найден.");
-        return false;
+        return changeStatus(car, CarStatus.AT_BASE, CarStatus.IN_MISSION, "Car sent to mission.");
     }
 
     public boolean sendToRepair(Car car) {
-        for (int i = 0; i < currentSize; i++) {
-            if (cars[i] == car && statuses[i] == CarStatus.AT_BASE) {
-                statuses[i] = CarStatus.IN_REPAIR;
-                System.out.println("Автомобиль отправлен в ремонт.");
-                return true;
-            }
-        }
-        System.out.println("Автомобиль не на базе или не найден.");
-        return false;
+        return changeStatus(car, CarStatus.AT_BASE, CarStatus.IN_REPAIR, "Car sent to repair.");
     }
 
     public boolean returnFromMission(Car car) {
-        for (int i = 0; i < currentSize; i++) {
-            if (cars[i] == car && statuses[i] == CarStatus.IN_MISSION) {
-                statuses[i] = CarStatus.AT_BASE;
-                System.out.println("Автомобиль возвращен из рейса.");
-                return true;
-            }
-        }
-        System.out.println("Автомобиль не в рейсе или не найден.");
-        return false;
+        return changeStatus(car, CarStatus.IN_MISSION, CarStatus.AT_BASE, "Car returned from mission.");
     }
 
     public boolean returnFromRepair(Car car) {
+        return changeStatus(car, CarStatus.IN_REPAIR, CarStatus.AT_BASE, "Car returned from repair.");
+    }
+
+    private boolean changeStatus(Car car, CarStatus from, CarStatus to, String successMessage) {
         for (int i = 0; i < currentSize; i++) {
-            if (cars[i] == car && statuses[i] == CarStatus.IN_REPAIR) {
-                statuses[i] = CarStatus.AT_BASE;
-                System.out.println("Автомобиль возвращен из ремонта.");
+            if (cars[i] == car && statuses[i] == from) {
+                statuses[i] = to;
+                System.out.println(successMessage);
                 return true;
             }
         }
-        System.out.println("Автомобиль не в ремонте или не найден.");
+        System.out.println("Operation is not allowed in current state or car missing.");
         return false;
     }
 
     public void displayCarsAtBase() {
-        System.out.println("Автомобили на базе:");
-        boolean found = false;
-        for (int i = 0; i < currentSize; i++) {
-            if (statuses[i] == CarStatus.AT_BASE) {
-                System.out.println(" - " + cars[i]);
-                found = true;
-            }
-        }
-        if (!found) System.out.println(" Нет.");
+        displayByStatus("Cars at base:", CarStatus.AT_BASE);
     }
 
     public void displayCarsInMission() {
-        System.out.println("Автомобили в рейсе:");
-        boolean found = false;
-        for (int i = 0; i < currentSize; i++) {
-            if (statuses[i] == CarStatus.IN_MISSION) {
-                System.out.println(" - " + cars[i]);
-                found = true;
-            }
-        }
-        if (!found) System.out.println(" Нет.");
+        displayByStatus("Cars in mission:", CarStatus.IN_MISSION);
     }
 
     public void displayCarsInRepair() {
-        System.out.println("Автомобили в ремонте:");
+        displayByStatus("Cars in repair:", CarStatus.IN_REPAIR);
+    }
+
+    private void displayByStatus(String title, CarStatus status) {
+        System.out.println(title);
         boolean found = false;
         for (int i = 0; i < currentSize; i++) {
-            if (statuses[i] == CarStatus.IN_REPAIR) {
+            if (statuses[i] == status) {
                 System.out.println(" - " + cars[i]);
                 found = true;
             }
         }
-        if (!found) System.out.println(" Нет.");
+        if (!found) {
+            System.out.println(" (none)");
+        }
     }
 }
