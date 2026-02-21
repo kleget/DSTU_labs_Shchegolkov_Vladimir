@@ -12,8 +12,8 @@ sum_sq = 0.0
 for x in data:
     sum_sq += (x - x_bar) ** 2
 
-D = sum_sq / n
-S2 = sum_sq / (n - 1)
+D = sum_sq / n #выборочное
+S2 = sum_sq / (n - 1) #исправленное
 
 sigma = math.sqrt(D)
 s = math.sqrt(S2)

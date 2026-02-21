@@ -14,12 +14,12 @@ sum_sq = 0.0
 for x in data:
     sum_sq += (x - x_bar) ** 2
 
-# corrected standard deviation
+
 S2 = sum_sq / (n - 1)
 s = math.sqrt(S2)
 
-# t_{alpha/2, n-1} for alpha=0.05, df=19 from Student table
-t_crit = 2.093
+
+t_crit = 2.093 #для alpha=0.05, df=19 из таблицы Стьюдента
 
 std_error = s / math.sqrt(n)
 delta = t_crit * std_error

@@ -7,6 +7,6 @@ for x in data:
 
 x_bar = sum_x / n
 
-print("Task g) Sample mean")
+print("Выборочное среднее")
 print(f"sum(xi) = {sum_x}")
 print(f"x_bar = sum(xi) / n = {sum_x} / {n} = {x_bar:.4f}")

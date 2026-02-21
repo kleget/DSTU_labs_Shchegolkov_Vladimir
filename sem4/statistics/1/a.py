@@ -6,8 +6,7 @@ value_min = sorted_data[0]
 value_max = sorted_data[-1]
 value_range = value_max - value_min
 
-# Manual frequency count for mode
-freq = {}
+freq = {} #frequency-частота
 for x in sorted_data:
     freq[x] = freq.get(x, 0) + 1
 
@@ -17,7 +16,6 @@ for x in sorted(freq.keys()):
     if freq[x] == max_freq:
         modes.append(x)
 
-# Manual median
 if n % 2 == 1:
     median = sorted_data[n // 2]
 else:
