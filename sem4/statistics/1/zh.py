@@ -12,9 +12,9 @@ sum_sq = 0.0
 for x in data:
     sum_sq += (x - x_bar) ** 2
 
-# For variation coefficient use corrected standard deviation
 S2 = sum_sq / (n - 1)
 s = math.sqrt(S2)
+
 
 V = (s / x_bar) * 100
 

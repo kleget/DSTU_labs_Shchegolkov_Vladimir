@@ -15,26 +15,26 @@ for x in data:
 xi = sorted(freq.keys())
 
 # cumulative relative frequencies
-cum_rel = []
+P_i = []
 running = 0
 for x in xi:
     running += freq[x]
-    cum_rel.append(running / n)
+    P_i.append(running / n)
 
 print("Task b) Empirical distribution function F(x)")
 print("Piecewise form:")
 print(f"x <= {xi[0]}: F(x) = 0")
 for i in range(len(xi) - 1):
-    print(f"{xi[i]} < x <= {xi[i + 1]}: F(x) = {cum_rel[i]:.2f}")
+    print(f"{xi[i]} < x <= {xi[i + 1]}: F(x) = {P_i[i]:.2f}")
 print(f"x > {xi[-1]}: F(x) = 1")
 
 # Step graph
 x_plot = [xi[0] - 1] + xi + [xi[-1] + 1]
-y_plot = [0.0] + cum_rel + [1.0]
+y_plot = [0.0] + P_i + [1.0]
 
 plt.figure(figsize=(8, 5))
 plt.step(x_plot, y_plot, where="post", linewidth=2)
-plt.scatter(xi, cum_rel, zorder=3)
+plt.scatter(xi, P_i, zorder=3)
 plt.ylim(-0.05, 1.05)
 plt.xlim(xi[0] - 1, xi[-1] + 1)
 plt.xticks(range(xi[0], xi[-1] + 1))

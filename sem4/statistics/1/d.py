@@ -10,11 +10,11 @@ sum_sq = 0.0
 for x in data:
     sum_sq += (x - x_bar) ** 2
 
-# Sample variance (divide by n)
-D = sum_sq / n
 
-# Corrected variance (unbiased estimate, divide by n-1)
-S2 = sum_sq / (n - 1)
+D = sum_sq / n  #выборочная 
+
+
+S2 = sum_sq / (n - 1)  #исправленная
 
 print("Task d) Sample and corrected variance")
 print(f"x_bar = {x_bar:.4f}")
