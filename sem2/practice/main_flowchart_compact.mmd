@@ -1,0 +1,28 @@
+﻿%%{init: {"theme":"base","flowchart":{"nodeSpacing":20,"rankSpacing":25,"curve":"linear"},"themeVariables":{"fontSize":"10px","lineWidth":"1","fontFamily":"Times New Roman"}}}%%
+flowchart TD
+  A(["Начало"]) --> B["Ввод f,a,b,ε"]
+  B --> C{"Ввод ок?"}
+  C -- "нет" --> D["Список ошибок"] --> Z(["Конец"])
+
+  C -- "да" --> E["a,b,ε -> float; f(x)"]
+  E --> F["fa=f(a); fb=f(b)"]
+  F --> G{"fa*fb > 0?"}
+  G -- "да" --> H["Условия не выполнены"] --> Z
+  G -- "нет" --> I["Иниц: a,b; it=0; max"]
+
+  I --> J["it++; c=(a+b)/2; fc=f(c); вывод"]
+  J --> K{"|b-a| <= ε?"}
+  K -- "да" --> L["root=(a+b)/2; результат"]
+  K -- "нет" --> M{"f(a)*fc > 0?"}
+  M -- "да" --> N["a=c"]
+  M -- "нет" --> O["b=c"]
+  N --> J
+  O --> J
+
+  L --> P{"it == max?"}
+  P -- "да" --> Q["Предупр. max"]
+  P -- "нет" --> S{"Построить график?"}
+  Q --> S
+  S -- "да" --> T["draw_function_plot"]
+  S -- "нет" --> Z
+  T --> Z

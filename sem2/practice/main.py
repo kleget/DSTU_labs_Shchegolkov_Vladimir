@@ -16,9 +16,20 @@ def validate_input(func_str, a_str, b_str, eps_str):
     else:
         try:
             x = symbols("x")
-            sympify(func_str)  # Пробуем преобразовать строку в математическое выражение
-        except Exception as e:
-            errors.append(f"Ошибка в функции: {str(e)}")
+            f_expr = sympify(func_str)  # Пробуем преобразовать строку в математическое выражение
+            # Проверяем, что это именно выражение (а не условие) и что используется только x
+            if getattr(f_expr, "is_Relational", False):
+                errors.append("Введите выражение функции, а не условие (например, x**2 - 1)")
+            else:
+                free = f_expr.free_symbols
+                extra = [s for s in free if s != x]
+                if extra:
+                    extra_names = ", ".join(sorted(str(s) for s in extra))
+                    errors.append(f"Недопустимые символы в функции: {extra_names}. Допустима только переменная x.")
+                if x not in free:
+                    errors.append("Функция должна зависеть от x (пример: x**2 - 1)")
+        except Exception:
+            errors.append("Не удалось распознать выражение функции. Проверьте синтаксис (пример: x**2 - 1)")
     
     # Проверка границ интервала: должны быть числами и a < b
     try:
@@ -43,6 +54,36 @@ def validate_input(func_str, a_str, b_str, eps_str):
         errors.append("Точность 'ε' должна быть числом")
         
     return errors
+
+
+def _humanize_calc_error(exc):
+    """
+    Переводит типичные ошибки вычислений в понятные сообщения на русском.
+    """
+    msg = str(exc)
+    if msg.startswith("Функция") or msg.startswith("На выбранном интервале"):
+        return msg
+    if "cannot determine truth value of Relational" in msg:
+        return ("Функция задана неверно: это условие или выражение не зависит от x. "
+                "Введите корректное выражение, например: x**2 - 1.")
+    if "division by zero" in msg or "divide by zero" in msg:
+        return "На выбранном интервале есть деление на ноль. Укажите другой интервал."
+    if "math domain error" in msg:
+        return "Функция не определена на выбранном интервале. Укажите другой интервал."
+    return "Ошибка при вычислениях. Проверьте выражение функции и выбранный интервал."
+
+
+def _safe_float(value):
+    """
+    Преобразует значение функции в число и проверяет корректность.
+    """
+    try:
+        val = float(value)
+    except Exception:
+        raise ValueError("Функция должна возвращать число. Проверьте выражение и что используется только x.")
+    if not np.isfinite(val):
+        raise ValueError("Функция не определена на выбранном интервале.")
+    return val
 
 
 def draw_function_plot(func_str, root, a, b):
@@ -82,12 +123,15 @@ def draw_function_plot(func_str, root, a, b):
         plt.title("График функции и найденный корень")
         plt.xlabel("x")
         plt.ylabel("f(x)")
+        # Убираем экспоненциальную запись на осях (без "e")
+        ax = plt.gca()
+        ax.ticklabel_format(style="plain", axis="both", useOffset=False)
         plt.tight_layout()
         plt.show()
         
     except Exception as e:
-        print(f"Не удалось построить график функции: {str(e)}")
-        print("Возможно, функция не определена на всем интервале или имеет особенности.")
+        print("Не удалось построить график функции.")
+        print(_humanize_calc_error(e))
 
 
 def bisection_method():
@@ -128,8 +172,8 @@ def bisection_method():
         f = lambdify(x, f_expr, modules=["numpy"])
         
         # Проверка условия сходимости метода
-        fa = f(a_val)
-        fb = f(b_val)
+        fa = _safe_float(f(a_val))
+        fb = _safe_float(f(b_val))
         
         # Условие сходимости: f(a) * f(b) < 0 (функция меняет знак)
         if fa * fb > 0:
@@ -156,22 +200,18 @@ def bisection_method():
         while iteration < max_iterations:
             iteration += 1
             c = (a + b) / 2      # Середина текущего интервала
-            fc = f(c)            # Значение функции в середине
+            fc = _safe_float(f(c))  # Значение функции в середине
             
             # Вывод информации о текущей итерации
             print(f"{iteration:<3} {c:<20.15f} {fc:<20.15f}")
-            
-            # Критерии остановки:
-            # 1. Найден точный корень (значение функции очень близко к 0)
-            # if abs(fc) < 1e-12:
-            #     break
                 
-            # 2. Достигнута требуемая точность
+            # Достигнута требуемая точность
             if abs(b - a) <= eps:
                 break
             
             # Выбор нового интервала: выбираем ту половину, где функция меняет знак
-            if f(a) * fc > 0:
+            fa = _safe_float(f(a))
+            if fa * fc > 0:
                 a = c  # Корень в правой половине
             else:
                 b = c  # Корень в левой половине
@@ -187,7 +227,8 @@ def bisection_method():
         # Итоговый результат
         print(f"\nРЕЗУЛЬТАТ:")
         print(f"Корень: {root:.8f}")
-        print(f"Значение функции: {f(root):.3e}")
+        # Печатаем без экспоненциальной формы (чтобы не было "e")
+        print(f"Значение функции: {_safe_float(f(root)):.10f}")
         print(f"Количество итераций: {iteration}")
         
         # Предложение построить график
@@ -196,11 +237,8 @@ def bisection_method():
             draw_function_plot(func_str, root, a_val, b_val)
             
     except Exception as e:
-        # Обработка ошибок при вычислениях
-        print(f"\nОшибка при выполнении вычислений: {str(e)}")
-        print("Проверьте корректность введенной функции и параметров.")
+        print(f"\nОшибка при выполнении вычислений: {_humanize_calc_error(e)}")
 
 
 if __name__ == "__main__":
-    # Запуск программы
     bisection_method()
