@@ -1,38 +1,35 @@
 import argparse
 import sys
-from collections import Counter
-from itertools import accumulate
-from statistics import median, multimode, pvariance, stdev, variance
+
+import numpy as np
 
 
-DEFAULT_DATA = [17,18,16,16,17,18,19,17,15,17,19,18,16,16,18,18,12,17,15,15,]
+DEFAULT_DATA = [
+    17, 18, 16, 16, 17, 18, 19, 17, 15, 17,
+    19, 18, 16, 16, 18, 18, 12, 17, 15, 15,
+]
+
+
+def pretty_number(x):
+    x = float(x)
+    if x.is_integer():
+        return int(x)
+    return x
 
 
 def build_series(data):
-    if not data:
+    if data.size == 0:
         raise ValueError("Выборка пуста")
 
-    n = len(data)
-    freq = Counter(data)
-    xi = sorted(freq.keys())
-
-    ni = []
-    for x in xi:
-        ni.append(freq[x])
-
-    pi = []
-    for count in ni:
-        pi.append(count / n)
-
-    Ni = list(accumulate(ni))
-
-    Fi = []
-    for c in Ni:
-        Fi.append(c / n)
+    n = data.size
+    xi, ni = np.unique(data, return_counts=True)
+    pi = ni / n
+    Ni = np.cumsum(ni)
+    Fi = Ni / n
 
     rows = []
-    for i in range(len(xi)):
-        rows.append([xi[i], ni[i], pi[i], Ni[i], Fi[i]])
+    for i in range(xi.size):
+        rows.append([float(xi[i]), int(ni[i]), float(pi[i]), int(Ni[i]), float(Fi[i])])
     return rows
 
 
@@ -52,27 +49,37 @@ def print_integral_series(rows):
     print()
 
 
-def print_main_stats(data, rows):
-    sorted_data = sorted(data)
-    mean_raw = sum(data) / len(data)
+def find_modes(data):
+    values, counts = np.unique(data, return_counts=True)
+    max_count = np.max(counts)
+    return values[counts == max_count]
 
-    weighted_sum = 0
+
+def print_main_stats(data, rows):
+    sorted_data = np.sort(data)
+    mean_raw = np.mean(data)
+
+    weighted_sum = 0.0
     for row in rows:
         weighted_sum += row[0] * row[1]
-    mean_grouped = weighted_sum / len(data)
+    mean_grouped = weighted_sum / data.size
 
-    var_sample = pvariance(data)
-    var_corrected = variance(data)
-    std_corrected = stdev(data)
-    modes = multimode(data)
-    value_range = max(data) - min(data)
+    var_sample = np.var(data, ddof=0)
+    var_corrected = np.var(data, ddof=1)
+    std_corrected = np.std(data, ddof=1)
+    modes = find_modes(data)
+    value_range = np.max(data) - np.min(data)
+    med = np.median(data)
+    sorted_pretty = [pretty_number(x) for x in sorted_data.tolist()]
+    modes_pretty = [pretty_number(x) for x in modes.tolist()]
+    med_pretty = pretty_number(med)
 
     print("Основные характеристики выборки:")
-    print(f"n = {len(data)}")
-    print(f"вариационный ряд = {sorted_data}")
+    print(f"n = {data.size}")
+    print(f"вариационный ряд = {sorted_pretty}")
     print(f"размах = {value_range:g}")
-    print(f"мода(ы) = {modes}")
-    print(f"медиана = {median(data):g}")
+    print(f"мода(ы) = {modes_pretty}")
+    print(f"медиана = {med_pretty}")
     print(f"среднее (по исходной выборке) = {mean_raw:.4f}")
     print(f"среднее (по дифференциальному ряду) = {mean_grouped:.4f}")
     print(f"выборочная дисперсия D = {var_sample:.4f}")
@@ -87,23 +94,20 @@ def print_main_stats(data, rows):
 
 def parse_data(raw):
     if raw is None:
-        return list(DEFAULT_DATA)
+        return np.array(DEFAULT_DATA, dtype=float)
 
     values = [token.strip() for token in raw.split(",") if token.strip()]
     if not values:
         raise ValueError("Строка с данными пуста")
 
-    numbers = []
-    for value in values:
-        numbers.append(float(value))
-    return numbers
+    return np.array([float(value) for value in values], dtype=float)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description=(
             "Лабораторная работа 1, часть 2: единая программа с "
-            "дифференциальным и интегральным рядами."
+            "дифференциальным и интегральным рядами на NumPy."
         )
     )
     parser.add_argument(
@@ -119,7 +123,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main() -> None:
+def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     if hasattr(sys.stderr, "reconfigure"):
