@@ -1,0 +1,61 @@
+﻿{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run One",
+      "request": "launch",
+      "mainClass": "lab_1.One",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    },
+    {
+      "type": "java",
+      "name": "Run Two",
+      "request": "launch",
+      "mainClass": "lab_1.Two",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    },
+    {
+      "type": "java",
+      "name": "Run Three",
+      "request": "launch",
+      "mainClass": "lab_1.Three",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    },
+    {
+      "type": "java",
+      "name": "Run Four",
+      "request": "launch",
+      "mainClass": "lab_1.Four",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    },
+    {
+      "type": "java",
+      "name": "Run Five",
+      "request": "launch",
+      "mainClass": "lab_1.Five",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    },
+    {
+      "type": "java",
+      "name": "Run Six",
+      "request": "launch",
+      "mainClass": "lab_1.Six",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    },
+    {
+      "type": "java",
+      "name": "Run Seven",
+      "request": "launch",
+      "mainClass": "lab_1.Seven",
+      "cwd": "${workspaceFolder}/sem4/java",
+      "vmArgs": "--module-path \"${env:JAVAFX_HOME}/lib\" --add-modules javafx.controls,javafx.swing,javafx.media"
+    }
+  ]
+}

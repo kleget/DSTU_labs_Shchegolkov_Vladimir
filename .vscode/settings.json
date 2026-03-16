@@ -1,0 +1,9 @@
+﻿{
+  "java.project.sourcePaths": [
+    "sem4/java"
+  ],
+  "java.project.outputPath": "out",
+  "java.project.referencedLibraries": [
+    "C:/soft/javafx-sdk-21.0.10/lib/*.jar"
+  ]
+}
