@@ -1,0 +1,20 @@
+﻿<!doctype html>
+<html lang="ru">
+<head><meta charset="UTF-8"><title>Задание 4</title></head>
+<body>
+<h2>Задание 4: Курсы ЦБ РФ</h2>
+<form action="currency" method="get">
+    <label>Тип:
+        <select name="type">
+            <option value="currency">Валюта</option>
+            <option value="metal">Металл</option>
+        </select>
+    </label><br><br>
+    <label>Код (USD/EUR/CNY/GBP или AU/AG/PT/PD): <input name="code" value="USD"></label><br><br>
+    <label>Дата с (dd.MM.yyyy): <input name="from" placeholder="01.01.2026"></label><br><br>
+    <label>Дата по (dd.MM.yyyy): <input name="to" placeholder="30.01.2026"></label><br><br>
+    <button type="submit">Отправить</button>
+</form>
+<p><a href="index.html">Задание 1</a></p>
+</body>
+</html>

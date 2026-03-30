@@ -4,6 +4,8 @@
   ],
   "java.project.outputPath": "out",
   "java.project.referencedLibraries": [
-    "C:/soft/javafx-sdk-21.0.10/lib/*.jar"
+    "C:/soft/javafx-sdk-21.0.10/lib/*.jar",
+    "${env:TOMCAT_HOME}/lib/*.jar",
+    "sem4/java/lab2/server/lib/*.jar"
   ]
 }
