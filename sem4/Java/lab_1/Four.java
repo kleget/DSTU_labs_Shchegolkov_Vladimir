@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -38,12 +38,12 @@ public class Four extends Application {
 
     @Override
     public void start(Stage stage) {
-        chart.setTitle("Line Charts");
+        chart.setTitle("Линейные графики");
         chart.setCreateSymbols(false);
         chart.setAnimated(false);
 
-        xAxis.setLabel("Argument");
-        yAxis.setLabel("Function");
+        xAxis.setLabel("Аргумент");
+        yAxis.setLabel("Функция");
 
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
@@ -68,9 +68,9 @@ public class Four extends Application {
         addFunctionRow(functionsGrid, 2, f3);
 
         HBox rangeBox = new HBox(8,
-                new Label("min"), minField,
-                new Label("max"), maxField,
-                new Label("step"), stepField
+                new Label("мин"), minField,
+                new Label("макс"), maxField,
+                new Label("шаг"), stepField
         );
 
         Button buildButton = new Button("Построить");
@@ -92,7 +92,7 @@ public class Four extends Application {
 
         grid.add(functionRow.showBox, 0, row);
         grid.add(new Label(functionRow.name), 1, row);
-        grid.add(new Label("width"), 2, row);
+        grid.add(new Label("толщина"), 2, row);
         grid.add(functionRow.widthField, 3, row);
     }
 
@@ -168,7 +168,7 @@ public class Four extends Application {
     private static class FunctionRow {
         final String name;
         final DoubleUnaryOperator formula;
-        final CheckBox showBox = new CheckBox("show");
+        final CheckBox showBox = new CheckBox("показывать");
         final TextField widthField = new TextField("2");
 
         FunctionRow(String name, DoubleUnaryOperator formula) {

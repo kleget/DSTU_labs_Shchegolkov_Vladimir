@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -32,17 +32,17 @@ public class Five extends Application {
         TableView<LanguageItem> table = new TableView<>();
         table.setEditable(true);
 
-        TableColumn<LanguageItem, String> languageCol = new TableColumn<>("Language");
+        TableColumn<LanguageItem, String> languageCol = new TableColumn<>("Язык");
         languageCol.setCellValueFactory(cell -> cell.getValue().languageProperty());
         languageCol.setCellFactory(TextFieldTableCell.forTableColumn());
         languageCol.setOnEditCommit(e -> e.getRowValue().setLanguage(e.getNewValue()));
 
-        TableColumn<LanguageItem, String> authorCol = new TableColumn<>("Author");
+        TableColumn<LanguageItem, String> authorCol = new TableColumn<>("Автор");
         authorCol.setCellValueFactory(cell -> cell.getValue().authorProperty());
         authorCol.setCellFactory(TextFieldTableCell.forTableColumn());
         authorCol.setOnEditCommit(e -> e.getRowValue().setAuthor(e.getNewValue()));
 
-        TableColumn<LanguageItem, Integer> yearCol = new TableColumn<>("Year");
+        TableColumn<LanguageItem, Integer> yearCol = new TableColumn<>("Год");
         yearCol.setCellValueFactory(cell -> cell.getValue().yearProperty().asObject());
         yearCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         yearCol.setOnEditCommit(e -> e.getRowValue().setYear(e.getNewValue()));
@@ -52,15 +52,15 @@ public class Five extends Application {
         table.setItems(data);
 
         TextField languageField = new TextField();
-        languageField.setPromptText("Language");
+        languageField.setPromptText("Язык");
 
         TextField authorField = new TextField();
-        authorField.setPromptText("Author");
+        authorField.setPromptText("Автор");
 
         TextField yearField = new TextField();
-        yearField.setPromptText("Year");
+        yearField.setPromptText("Год");
 
-        Button addButton = new Button("Add row");
+        Button addButton = new Button("Добавить строку");
         addButton.setOnAction(e -> {
             String language = languageField.getText().trim();
             String author = authorField.getText().trim();
@@ -77,16 +77,16 @@ public class Five extends Application {
         });
 
         HBox addBox = new HBox(8,
-                new Label("New:"),
+                new Label("Новая запись:"),
                 languageField,
                 authorField,
                 yearField,
                 addButton
         );
 
-        CheckBox showLanguage = new CheckBox("Show Language");
-        CheckBox showAuthor = new CheckBox("Show Author");
-        CheckBox showYear = new CheckBox("Show Year");
+        CheckBox showLanguage = new CheckBox("Показать язык");
+        CheckBox showAuthor = new CheckBox("Показать автора");
+        CheckBox showYear = new CheckBox("Показать год");
         showLanguage.setSelected(true);
         showAuthor.setSelected(true);
         showYear.setSelected(true);
@@ -96,7 +96,7 @@ public class Five extends Application {
         yearCol.visibleProperty().bind(showYear.selectedProperty());
 
         HBox visibleBox = new HBox(12,
-                new Label("Columns:"),
+                new Label("Столбцы:"),
                 showLanguage,
                 showAuthor,
                 showYear
@@ -111,7 +111,7 @@ public class Five extends Application {
         root.setBottom(bottom);
 
         Scene scene = new Scene(root, 820, 500);
-        stage.setTitle("Lab 1 - Task 5");
+        stage.setTitle("Лаба 1 — Задание 5");
         stage.setScene(scene);
         stage.show();
     }

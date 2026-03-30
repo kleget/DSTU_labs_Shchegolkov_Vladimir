@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -60,7 +60,7 @@ public class Two extends Application {
         scene.setOnKeyPressed(e -> handleKey(e.getCode(), pane));
 
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Ð›Ð°Ð±Ð° 1 â€” Ð—Ð°Ð´Ð°Ð½Ð¸Ðµ 2");
+        primaryStage.setTitle("Лаба 1 — Задание 2");
         primaryStage.show();
         
         pane.requestFocus();

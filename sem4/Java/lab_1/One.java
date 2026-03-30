@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
@@ -37,7 +37,7 @@ public class One extends Application {
 
         VBox paletteVBox = new VBox(8);
 
-        Button saveButton = new Button("Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ");
+        Button saveButton = new Button("Сохранить");
 
         ToggleGroup group = new ToggleGroup();
 
@@ -64,9 +64,9 @@ public class One extends Application {
 
         saveButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ");
+            fileChooser.setTitle("Сохранить");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG", "*.png"));
-            fileChooser.setInitialFileName("ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÐ°.png");
+            fileChooser.setInitialFileName("картинка.png");
 
             File file = fileChooser.showSaveDialog(primaryStage);
             if (file == null) {
@@ -87,7 +87,7 @@ public class One extends Application {
         root.setBottom(saveButton);
 
         primaryStage.setScene(new Scene(root));
-        primaryStage.setTitle("Lab 1");
+        primaryStage.setTitle("Лаба 1 — Задание 1");
         primaryStage.show();
     }
 

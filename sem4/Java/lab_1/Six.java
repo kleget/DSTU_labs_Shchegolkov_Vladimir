@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -57,7 +57,7 @@ public class Six extends Application {
     private final Rotate rotateY = new Rotate(-20, Rotate.Y_AXIS);
     private final Rotate rotateZ = new Rotate(0, Rotate.Z_AXIS);
 
-    private final Label infoLabel = new Label("Load an .xyz file");
+    private final Label infoLabel = new Label("Загрузите файл .xyz");
     private final ComboBox<String> elementBox = new ComboBox<>();
     private final ColorPicker colorPicker = new ColorPicker(Color.SADDLEBROWN);
 
@@ -94,13 +94,13 @@ public class Six extends Application {
         subScene.widthProperty().bind(centerPane.widthProperty());
         subScene.heightProperty().bind(centerPane.heightProperty());
 
-        Button loadButton = new Button("Open XYZ");
+        Button loadButton = new Button("Открыть XYZ");
         loadButton.setOnAction(e -> loadMolecule(stage));
 
-        Button saveButton = new Button("Save Image");
+        Button saveButton = new Button("Сохранить изображение");
         saveButton.setOnAction(e -> saveSnapshot(subScene, stage));
 
-        Button applyColorButton = new Button("Apply Color");
+        Button applyColorButton = new Button("Применить цвет");
         applyColorButton.setOnAction(e -> {
             String element = elementBox.getValue();
             if (element == null) {
@@ -113,7 +113,7 @@ public class Six extends Application {
         Slider scaleSlider = new Slider(30, 250, 100);
         scaleSlider.setShowTickLabels(true);
         scaleSlider.setShowTickMarks(true);
-        scaleSlider.setTooltip(new Tooltip("Molecule size"));
+        scaleSlider.setTooltip(new Tooltip("Размер молекулы"));
         scaleSlider.valueProperty().addListener((obs, oldV, newV) -> {
             double s = newV.doubleValue() / 100.0;
             moleculeGroup.setScaleX(s);
@@ -128,16 +128,16 @@ public class Six extends Application {
         HBox row1 = new HBox(10,
                 loadButton,
                 saveButton,
-                new Label("Element"), elementBox,
+                new Label("Элемент"), elementBox,
                 colorPicker,
                 applyColorButton
         );
 
         VBox row2 = new VBox(6,
-                new HBox(8, new Label("Scale"), scaleSlider),
-                new HBox(8, new Label("Rotate X"), xSlider),
-                new HBox(8, new Label("Rotate Y"), ySlider),
-                new HBox(8, new Label("Rotate Z"), zSlider)
+                new HBox(8, new Label("Масштаб"), scaleSlider),
+                new HBox(8, new Label("Поворот X"), xSlider),
+                new HBox(8, new Label("Поворот Y"), ySlider),
+                new HBox(8, new Label("Поворот Z"), zSlider)
         );
 
         VBox controls = new VBox(8, row1, row2, infoLabel);
@@ -148,7 +148,7 @@ public class Six extends Application {
         root.setCenter(centerPane);
 
         Scene scene = new Scene(root, 1000, 750, true);
-        stage.setTitle("Lab 1 - Task 6");
+        stage.setTitle("Лаба 1 — Задание 6");
         stage.setScene(scene);
         stage.show();
     }
@@ -163,8 +163,8 @@ public class Six extends Application {
 
     private void loadMolecule(Stage stage) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Open .xyz file");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XYZ files", "*.xyz"));
+        chooser.setTitle("Открыть файл .xyz");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Файлы XYZ", "*.xyz"));
 
         File file = chooser.showOpenDialog(stage);
         if (file == null) {
@@ -175,27 +175,27 @@ public class Six extends Application {
             readXyz(file);
             updateElementSelector();
             rebuildMolecule();
-            infoLabel.setText("Loaded: " + file.getName() + " | " + moleculeDescription + " | atoms: " + atoms.size());
+            infoLabel.setText("Загружено: " + file.getName() + " | " + moleculeDescription + " | атомов: " + atoms.size());
         } catch (Exception ex) {
-            showError("Cannot read xyz file", ex.getMessage());
+            showError("Не удалось прочитать файл xyz", ex.getMessage());
         }
     }
 
     private void readXyz(File file) throws IOException {
         List<String> lines = Files.readAllLines(file.toPath());
         if (lines.isEmpty()) {
-            throw new IllegalArgumentException("File is empty");
+            throw new IllegalArgumentException("Файл пуст");
         }
 
         int atomCount;
         try {
             atomCount = Integer.parseInt(stripBom(lines.get(0)).trim());
         } catch (Exception e) {
-            throw new IllegalArgumentException("First line must contain atom count");
+            throw new IllegalArgumentException("В первой строке должно быть число атомов");
         }
 
         if (lines.size() < atomCount + 2) {
-            throw new IllegalArgumentException("Not enough lines for declared atom count");
+            throw new IllegalArgumentException("Недостаточно строк для указанного числа атомов");
         }
 
         moleculeDescription = lines.get(1).trim();
@@ -209,7 +209,7 @@ public class Six extends Application {
 
             String[] p = line.split("\\s+");
             if (p.length < 4) {
-                throw new IllegalArgumentException("Bad atom line: " + line);
+                throw new IllegalArgumentException("Некорректная строка атома: " + line);
             }
 
             String element = p[0];
@@ -344,7 +344,7 @@ public class Six extends Application {
 
     private void saveSnapshot(SubScene subScene, Stage stage) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Save image");
+        chooser.setTitle("Сохранить изображение");
         chooser.setInitialFileName("molecule.png");
         chooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("PNG", "*.png"),
@@ -376,9 +376,9 @@ public class Six extends Application {
             } else {
                 ImageIO.write(buffered, format, file);
             }
-            infoLabel.setText("Saved: " + file.getName());
+            infoLabel.setText("Сохранено: " + file.getName());
         } catch (IOException e) {
-            showError("Cannot save image", e.getMessage());
+            showError("Не удалось сохранить изображение", e.getMessage());
         }
     }
 
@@ -429,7 +429,7 @@ public class Six extends Application {
 
     private void showError(String header, String text) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle("Ошибка");
         alert.setHeaderText(header);
         alert.setContentText(text);
         alert.showAndWait();

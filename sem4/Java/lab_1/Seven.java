@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
@@ -29,7 +29,7 @@ public class Seven extends Application {
 
     private MediaPlayer player;
 
-    private final Label fileLabel = new Label("File: -");
+    private final Label fileLabel = new Label("Файл: -");
     private final Label currentLabel = new Label("00:00");
     private final Label totalLabel = new Label("00:00");
 
@@ -44,13 +44,13 @@ public class Seven extends Application {
 
     @Override
     public void start(Stage stage) {
-        MenuItem openItem = new MenuItem("Open...");
+        MenuItem openItem = new MenuItem("Открыть...");
         openItem.setOnAction(e -> openMedia(stage));
 
-        MenuItem exitItem = new MenuItem("Exit");
+        MenuItem exitItem = new MenuItem("Выход");
         exitItem.setOnAction(e -> stage.close());
 
-        Menu fileMenu = new Menu("File");
+        Menu fileMenu = new Menu("Файл");
         fileMenu.getItems().addAll(openItem, exitItem);
 
         MenuBar menuBar = new MenuBar(fileMenu);
@@ -59,24 +59,24 @@ public class Seven extends Application {
         videoPane.setStyle("-fx-background-color: black;");
         videoPane.setPrefHeight(460);
 
-        Button openButton = new Button("Open");
+        Button openButton = new Button("Открыть");
         openButton.setOnAction(e -> openMedia(stage));
 
-        Button playButton = new Button("Play");
+        Button playButton = new Button("Воспроизвести");
         playButton.setOnAction(e -> {
             if (player != null) {
                 player.play();
             }
         });
 
-        Button pauseButton = new Button("Pause");
+        Button pauseButton = new Button("Пауза");
         pauseButton.setOnAction(e -> {
             if (player != null) {
                 player.pause();
             }
         });
 
-        Button stopButton = new Button("Stop");
+        Button stopButton = new Button("Стоп");
         stopButton.setOnAction(e -> {
             if (player != null) {
                 player.stop();
@@ -112,7 +112,7 @@ public class Seven extends Application {
                 currentLabel,
                 progressSlider,
                 totalLabel,
-                new Label("Volume"),
+                new Label("Громкость"),
                 volumeSlider
         );
         controls.setAlignment(Pos.CENTER_LEFT);
@@ -126,17 +126,17 @@ public class Seven extends Application {
         root.setBottom(bottom);
 
         Scene scene = new Scene(root, 980, 620);
-        stage.setTitle("Lab 1 - Task 7 (Media Player)");
+        stage.setTitle("Лаба 1 — Задание 7 (Медиаплеер)");
         stage.setScene(scene);
         stage.show();
     }
 
     private void openMedia(Stage stage) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Open media file");
+        chooser.setTitle("Открыть медиафайл");
         chooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Media", "*.mp4", "*.m4v", "*.mp3", "*.wav", "*.m4a"),
-                new FileChooser.ExtensionFilter("All files", "*.*")
+                new FileChooser.ExtensionFilter("Медиафайлы", "*.mp4", "*.m4v", "*.mp3", "*.wav", "*.m4a"),
+                new FileChooser.ExtensionFilter("Все файлы", "*.*")
         );
 
         File file = chooser.showOpenDialog(stage);
@@ -144,7 +144,7 @@ public class Seven extends Application {
             return;
         }
 
-        fileLabel.setText("File: " + file.getName());
+        fileLabel.setText("Файл: " + file.getName());
 
         if (player != null) {
             player.stop();

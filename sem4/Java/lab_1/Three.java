@@ -1,4 +1,4 @@
-﻿package lab_1;
+package lab_1;
 
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
@@ -28,21 +28,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Three extends Application {
-    // Размеры окна (холста), где рисуем.
     private static final double PANE_W = 800;
     private static final double PANE_H = 600;
-    // Шаги для перемещения и изменения размеров.
     private static final double MOVE_STEP = 10;
     private static final double SIZE_STEP = 10;
-    // Минимальный размер рамки.
     private static final double MIN_SIZE = 20;
 
     private final Pane drawingPane = new Pane();
     private final Rectangle frame = new Rectangle();
     private final List<Item> items = new ArrayList<>();
     private Item current;
-
-    // Элементы управления справа.
     private final ColorPicker strokeColorPicker = new ColorPicker(Color.BLACK);
     private final ColorPicker fillColorPicker = new ColorPicker(Color.LIGHTGRAY);
     private final TextField strokeWidthField = new TextField("2");
@@ -76,8 +71,6 @@ public class Three extends Application {
         root.setLeft(leftPalette);
         root.setCenter(drawingPane);
         root.setRight(rightPanel);
-
-        // Фильтр, чтобы клавиши работали даже когда фокус на TextField.
         Scene scene = new Scene(root);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (isControlKey(e.getCode())) {
@@ -101,22 +94,16 @@ public class Three extends Application {
         primaryStage.show();
         drawingPane.requestFocus();
     }
-
-    // Пунктирная рамка вокруг текущего примитива.
     private void setupFrame() {
         frame.setFill(Color.TRANSPARENT);
         frame.setStroke(Color.rgb(0, 0, 0, 0.6));
         frame.getStrokeDashArray().setAll(8.0, 6.0);
         frame.setVisible(false);
     }
-
-    // Заполняем список типов линий.
     private void setupLineTypeBox() {
         lineTypeBox.getItems().addAll("Сплошная", "Пунктирная", "Точечная");
         lineTypeBox.getSelectionModel().select(0);
     }
-
-    // Левая панель: выбор примитива.
     private VBox createPalette(ToggleGroup group) {
         ToggleButton lineBtn = new ToggleButton("Линия");
         lineBtn.setUserData("LINE");
@@ -136,14 +123,10 @@ public class Three extends Application {
         box.setPrefWidth(140);
         return box;
     }
-
-    // Правая панель: настройки.
     private VBox createRightPanel() {
         strokeWidthField.setPrefColumnCount(5);
         saveWidthField.setPrefColumnCount(5);
         saveHeightField.setPrefColumnCount(5);
-
-        // Кнопки + / - меняют толщину линии без ввода цифр.
         strokePlusBtn.setOnAction(e -> changeStrokeWidth(1));
         strokeMinusBtn.setOnAction(e -> changeStrokeWidth(-1));
 
@@ -161,8 +144,6 @@ public class Three extends Application {
         box.setPrefWidth(200);
         return box;
     }
-
-    // Верхнее меню: сохранить, выход, справка.
     private MenuBar createMenu(Stage stage) {
         Menu fileMenu = new Menu("Файл");
         MenuItem saveItem = new MenuItem("Сохранить...");
@@ -179,8 +160,6 @@ public class Three extends Application {
 
         return new MenuBar(fileMenu, helpMenu);
     }
-
-    // Добавление примитива в точку клика.
     private void addPrimitive(String type, double clickX, double clickY) {
         Shape shape = createShape(type);
         Item item = new Item(shape);
@@ -199,8 +178,6 @@ public class Three extends Application {
 
         setCurrent(item);
     }
-
-    // Создаем примитив по типу.
     private Shape createShape(String type) {
         switch (type) {
             case "LINE":
@@ -214,8 +191,6 @@ public class Three extends Application {
                 return new Rectangle();
         }
     }
-
-    // Применяем цвета, толщину и тип линии.
     private void applyStyle(Shape shape, String type) {
         shape.setStroke(strokeColorPicker.getValue());
         shape.setStrokeWidth(parseDouble(strokeWidthField.getText(), 2));
@@ -234,8 +209,6 @@ public class Three extends Application {
             shape.getStrokeDashArray().addAll(2.0, 6.0);
         }
     }
-
-    // Делаем выбранный примитив активным.
     private void setCurrent(Item item) {
         current = item;
         frame.setVisible(true);
@@ -245,8 +218,6 @@ public class Three extends Application {
         frame.toFront();
         updateFrame(item);
     }
-
-    // Обновляем геометрию примитива.
     private void updateShape(Item item) {
         Shape shape = item.shape;
         if (shape instanceof Line) {
@@ -275,16 +246,12 @@ public class Three extends Application {
             r.setHeight(item.h);
         }
     }
-
-    // Обновляем положение рамки.
     private void updateFrame(Item item) {
         frame.setX(item.x);
         frame.setY(item.y);
         frame.setWidth(item.w);
         frame.setHeight(item.h);
     }
-
-    // Управление клавиатурой для текущего примитива.
     private void handleKey(KeyCode code) {
         if (current == null) {
             return;
@@ -312,8 +279,6 @@ public class Three extends Application {
         updateShape(current);
         updateFrame(current);
     }
-
-    // Проверяем, что это управляющая клавиша.
     private boolean isControlKey(KeyCode code) {
         return code == KeyCode.LEFT
                 || code == KeyCode.RIGHT
@@ -329,8 +294,6 @@ public class Three extends Application {
                 || code == KeyCode.PERIOD
                 || code == KeyCode.GREATER;
     }
-
-    // Ограничения по границам и минимальным размерам.
     private void clamp(Item item) {
         double maxW = drawingPane.getPrefWidth();
         double maxH = drawingPane.getPrefHeight();
@@ -364,8 +327,6 @@ public class Three extends Application {
             item.y = 0;
         }
     }
-
-    // Сохранение в файл PNG.
     private void saveImage(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Сохранить");
@@ -398,8 +359,6 @@ public class Three extends Application {
             ex.printStackTrace();
         }
     }
-
-    // Простая справка.
     private void showInfo() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Инструкция");
@@ -413,8 +372,6 @@ public class Three extends Application {
         );
         alert.showAndWait();
     }
-
-    // Простой класс для хранения примитива и его размеров.
     private static class Item {
         final Shape shape;
         double x;
@@ -426,8 +383,6 @@ public class Three extends Application {
             this.shape = shape;
         }
     }
-
-    // Простое чтение чисел.
     private static int parseInt(String text, int def) {
         try {
             return Integer.parseInt(text.trim());
@@ -443,8 +398,6 @@ public class Three extends Application {
             return def;
         }
     }
-
-    // Увеличиваем или уменьшаем толщину линии.
     private void changeStrokeWidth(int delta) {
         double current = parseDouble(strokeWidthField.getText(), 2);
         double next = current + delta;
