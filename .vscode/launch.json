@@ -1,6 +1,13 @@
-﻿{
+{
   "version": "0.2.0",
   "configurations": [
+    {
+      "type": "java",
+      "name": "AuthClientFx",
+      "request": "launch",
+      "mainClass": "lab2.client_task3.AuthClientFx",
+      "projectName": "DSTU_labs_Shchegolkov_Vladimir_23f62a9f"
+    },
     {
       "type": "java",
       "name": "Run One",

@@ -1,4 +1,4 @@
-﻿package lab2;
+package lab2;
 
 import jakarta.servlet.ServletContext;
 import org.w3c.dom.Document;

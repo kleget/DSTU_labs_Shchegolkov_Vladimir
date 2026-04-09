@@ -1,7 +1,12 @@
-﻿import javafx.application.Application;
+import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -46,14 +51,17 @@ public class AuthClientFx extends Application {
         VBox root = new VBox(10, form, send, new Label("Ответ сервлета"), output);
         root.setPadding(new Insets(10));
 
-        stage.setTitle("Лаба 2 — Задание 3 (JavaFX клиент)");
+        stage.setTitle("Лаба 2 - Задание 3");
         stage.setScene(new Scene(root, 760, 480));
         stage.show();
     }
 
     private void sendRequest() {
         try {
-            String body = "action=" + enc(action.getValue()) + "&login=" + enc(login.getText()) + "&password=" + enc(password.getText());
+            String body = "action=" + enc(action.getValue())
+                    + "&login=" + enc(login.getText())
+                    + "&password=" + enc(password.getText());
+
             HttpRequest req;
             if ("POST".equals(method.getValue())) {
                 req = HttpRequest.newBuilder(URI.create(url.getText()))
@@ -61,10 +69,14 @@ public class AuthClientFx extends Application {
                         .POST(HttpRequest.BodyPublishers.ofString(body))
                         .build();
             } else {
-                req = HttpRequest.newBuilder(URI.create(url.getText() + "?" + body)).GET().build();
+                req = HttpRequest.newBuilder(URI.create(url.getText() + "?" + body))
+                        .GET()
+                        .build();
             }
 
-            String res = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+            String res = HttpClient.newHttpClient()
+                    .send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+                    .body();
             output.setText(res);
         } catch (Exception ex) {
             output.setText("Ошибка: " + ex.getMessage());

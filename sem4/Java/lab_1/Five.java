@@ -47,7 +47,7 @@ public class Five extends Application {
         yearCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         yearCol.setOnEditCommit(e -> e.getRowValue().setYear(e.getNewValue()));
 
-        table.getColumns().addAll(languageCol, authorCol, yearCol);
+        table.getColumns().addAll(languageCol, authorCol, yearCol); 
         fillStartData();
         table.setItems(data);
 
@@ -108,7 +108,7 @@ public class Five extends Application {
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
         root.setCenter(table);
-        root.setBottom(bottom);
+        root.setBottom(bottom);   
 
         Scene scene = new Scene(root, 820, 500);
         stage.setTitle("Лаба 1 — Задание 5");

@@ -1,10 +1,16 @@
-﻿import javafx.application.Application;
+import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -40,11 +46,11 @@ public class CurrencyClientFx extends Application {
         updateCodes();
         type.setOnAction(e -> updateCodes());
 
-        TableColumn<Row, String> d = new TableColumn<>("Дата");
-        d.setCellValueFactory(new PropertyValueFactory<>("date"));
-        TableColumn<Row, String> v = new TableColumn<>("Значение");
-        v.setCellValueFactory(new PropertyValueFactory<>("value"));
-        table.getColumns().addAll(d, v);
+        TableColumn<Row, String> dateCol = new TableColumn<>("Дата");
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
+        TableColumn<Row, String> valueCol = new TableColumn<>("Значение");
+        valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
+        table.getColumns().addAll(dateCol, valueCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         chart.setTitle("Динамика");
@@ -67,7 +73,7 @@ public class CurrencyClientFx extends Application {
         VBox root = new VBox(10, form, load, new Label("Таблица"), table, chart);
         root.setPadding(new Insets(10));
 
-        stage.setTitle("Лаба 2 — Задание 5 (JavaFX клиент)");
+        stage.setTitle("Лаба 2 - Задание 5");
         stage.setScene(new Scene(root, 900, 720));
         stage.show();
     }
@@ -83,23 +89,27 @@ public class CurrencyClientFx extends Application {
 
     private void loadData() {
         try {
-            String q = "type=" + enc(type.getValue()) +
-                    "&code=" + enc(code.getValue()) +
-                    "&from=" + enc(fmt.format(from.getValue())) +
-                    "&to=" + enc(fmt.format(to.getValue())) +
-                    "&format=csv";
+            String q = "type=" + enc(type.getValue())
+                    + "&code=" + enc(code.getValue())
+                    + "&from=" + enc(fmt.format(from.getValue()))
+                    + "&to=" + enc(fmt.format(to.getValue()))
+                    + "&format=csv";
 
-            HttpRequest req = HttpRequest.newBuilder(URI.create(url.getText() + "?" + q)).GET().build();
-            String body = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+            HttpRequest req = HttpRequest.newBuilder(URI.create(url.getText() + "?" + q))
+                    .GET()
+                    .build();
+            String body = HttpClient.newHttpClient()
+                    .send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+                    .body();
 
             List<Row> rows = parseCsv(body);
             table.getItems().setAll(rows);
 
-            XYChart.Series<Number, Number> s = new XYChart.Series<>();
+            XYChart.Series<Number, Number> series = new XYChart.Series<>();
             for (int i = 0; i < rows.size(); i++) {
-                s.getData().add(new XYChart.Data<>(i + 1, Double.parseDouble(rows.get(i).value)));
+                series.getData().add(new XYChart.Data<>(i + 1, Double.parseDouble(rows.get(i).value)));
             }
-            chart.getData().setAll(s);
+            chart.getData().setAll(series);
             chart.setVisible(rows.size() > 1);
         } catch (Exception ex) {
             table.getItems().clear();
@@ -116,9 +126,9 @@ public class CurrencyClientFx extends Application {
             if (line.isEmpty()) {
                 continue;
             }
-            String[] p = line.split(";");
-            if (p.length >= 2) {
-                rows.add(new Row(p[0], p[1]));
+            String[] parts = line.split(";");
+            if (parts.length >= 2) {
+                rows.add(new Row(parts[0], parts[1]));
             }
         }
         return rows;

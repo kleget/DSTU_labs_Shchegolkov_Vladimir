@@ -1,4 +1,4 @@
-﻿package lab2;
+package lab2;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

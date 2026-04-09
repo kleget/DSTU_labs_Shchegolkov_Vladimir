@@ -1,4 +1,4 @@
-﻿package lab2;
+package lab2;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
