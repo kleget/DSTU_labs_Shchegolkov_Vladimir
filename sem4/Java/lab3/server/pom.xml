@@ -1,8 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>lab2</groupId>
-    <artifactId>lab2-server</artifactId>
+
+    <groupId>lab3</groupId>
+    <artifactId>lab3-server</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
 
@@ -23,6 +25,7 @@
     </dependencies>
 
     <build>
+        <finalName>lab3</finalName>
         <plugins>
             <plugin>
                 <groupId>org.eclipse.jetty.ee10</groupId>
@@ -33,7 +36,7 @@
                         <port>${jetty.http.port}</port>
                     </httpConnector>
                     <webApp>
-                        <contextPath>/lab2</contextPath>
+                        <contextPath>/lab3</contextPath>
                     </webApp>
                 </configuration>
             </plugin>

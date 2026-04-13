@@ -1,9 +1,6 @@
-import sys
 
 import numpy as np
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
 
 X = np.array([6.7, 5.4, 7.7, 6.6, 7.7, 5.5, 6.0, 7.3, 7.9, 6.3, 6.1, 5.5], dtype=float)
 Y = np.array([7.2, 11.3, 7.9, 0.7, 16.9, -5.4, -5.5, 1.0, -7.0, 12.9, 12.8, 0.6], dtype=float)
@@ -39,7 +36,7 @@ print(f"n = {n}, p = {p}, alpha = {alpha}")
 print()
 print("Уравнение регрессии:")
 print(
-    f"ŷ = {coef[0]:.6f} "
+    f"ŷ = { [0]:.6f} "
     f"+ {coef[1]:.6f}x "
     f"+ {coef[2]:.6f}x² "
     f"+ {coef[3]:.6f}x³"

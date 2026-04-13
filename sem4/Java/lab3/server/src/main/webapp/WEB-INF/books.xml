@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<books>
+    <book id="1" title="Java для начинающих" author="Иванов" genre="programming" year="2022"/>
+    <book id="2" title="Алгоритмы" author="Петров" genre="programming" year="2020"/>
+    <book id="3" title="Мастер и Маргарита" author="Булгаков" genre="fiction" year="1967"/>
+</books>
