@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+    <display-name>lab4</display-name>
+
+    <servlet>
+        <servlet-name>JdbcProductServlet</servlet-name>
+        <servlet-class>lab4.servlet.JdbcProductServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>JdbcProductServlet</servlet-name>
+        <url-pattern>/jdbc/products</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>JpaBookServlet</servlet-name>
+        <servlet-class>lab4.servlet.JpaBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>JpaBookServlet</servlet-name>
+        <url-pattern>/jpa/books</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>JpaProductServlet</servlet-name>
+        <servlet-class>lab4.servlet.JpaProductServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>JpaProductServlet</servlet-name>
+        <url-pattern>/jpa/products</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>lab4.servlet.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>lab4.servlet.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>lab4.servlet.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "LibraryClientFx",
+      "request": "launch",
+      "mainClass": "lab3.client_task3.LibraryClientFx",
+      "projectName": "DSTU_labs_Shchegolkov_Vladimir_23f62a9f"
+    },
+    {
+      "type": "java",
       "name": "AuthClientFx",
       "request": "launch",
       "mainClass": "lab2.client_task3.AuthClientFx",

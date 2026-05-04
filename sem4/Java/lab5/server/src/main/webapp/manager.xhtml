@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<f:metadata>
+    <f:viewAction action="#{authBean.requireManager}"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Менеджер</ui:define>
+
+    <ui:define name="content">
+        <section class="panel">
+            <h1>Рабочее место менеджера</h1>
+            <p>Менеджер добавляет, изменяет и удаляет доступные автомобили, а также видит текущую аренду.</p>
+            <h:messages globalOnly="true" styleClass="error info"/>
+        </section>
+
+        <section class="panel">
+            <h2>Добавление и изменение автомобиля</h2>
+            <h:form>
+                <h:inputHidden value="#{managerBean.editId}"/>
+
+                <div class="form-line">
+                    <h:outputLabel for="name" value="Название"/>
+                    <h:inputText id="name" value="#{managerBean.name}" required="true"
+                                 requiredMessage="Название: заполните поле" styleClass="text-input"/>
+                    <h:message for="name" styleClass="field-error"/>
+                </div>
+
+                <div class="form-line">
+                    <h:outputLabel for="color" value="Цвет"/>
+                    <h:inputText id="color" value="#{managerBean.color}" required="true"
+                                 requiredMessage="Цвет: заполните поле" styleClass="text-input"/>
+                    <h:message for="color" styleClass="field-error"/>
+                </div>
+
+                <div class="form-line">
+                    <h:outputLabel for="serial" value="Серийный номер"/>
+                    <h:inputText id="serial" value="#{managerBean.serialNumber}" required="true"
+                                 requiredMessage="Серийный номер: заполните поле" styleClass="text-input"/>
+                    <h:message for="serial" styleClass="field-error"/>
+                </div>
+
+                <div class="form-line">
+                    <h:outputLabel for="condition" value="Состояние"/>
+                    <h:inputText id="condition" value="#{managerBean.conditionInfo}" required="true"
+                                 requiredMessage="Состояние: заполните поле" styleClass="text-input"/>
+                    <h:message for="condition" styleClass="field-error"/>
+                </div>
+
+                <div class="form-line">
+                    <h:outputLabel for="price" value="Цена за день"/>
+                    <h:inputText id="price" value="#{managerBean.pricePerDay}" required="true"
+                                 requiredMessage="Цена: заполните поле" styleClass="text-input">
+                        <f:validateDoubleRange minimum="1"/>
+                    </h:inputText>
+                    <h:message for="price" styleClass="field-error"/>
+                </div>
+
+                <div class="actions">
+                    <h:commandButton value="Сохранить" action="#{managerBean.save}"/>
+                    <h:commandButton value="Очистить" action="#{managerBean.clearForm}" styleClass="secondary" immediate="true"/>
+                </div>
+            </h:form>
+        </section>
+
+        <section class="panel">
+            <h2>Доступные для проката автомобили</h2>
+            <h:panelGroup rendered="#{empty managerBean.availableCars}" layout="block" styleClass="empty-text">
+                Сейчас нет свободных автомобилей.
+            </h:panelGroup>
+
+            <h:form rendered="#{not empty managerBean.availableCars}">
+                <h:dataTable value="#{managerBean.availableCars}" var="car" styleClass="data-table">
+                    <h:column>
+                        <f:facet name="header">Название</f:facet>
+                        #{car.name}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Цвет</f:facet>
+                        #{car.color}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Серийный номер</f:facet>
+                        #{car.serialNumber}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Состояние</f:facet>
+                        #{car.conditionInfo}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Цена за день</f:facet>
+                        <h:outputText value="#{car.pricePerDay}">
+                            <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                        </h:outputText>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Действия</f:facet>
+                        <h:commandButton value="Изменить" action="#{managerBean.edit(car)}" styleClass="secondary"/>
+                        <h:commandButton value="Удалить" action="#{managerBean.delete(car.id)}"/>
+                    </h:column>
+                </h:dataTable>
+            </h:form>
+        </section>
+
+        <section class="panel">
+            <h2>Арендованные автомобили</h2>
+            <h:panelGroup rendered="#{empty managerBean.activeRentals}" layout="block" styleClass="empty-text">
+                Активных аренд нет.
+            </h:panelGroup>
+
+            <h:dataTable value="#{managerBean.activeRentals}" var="rental"
+                         rendered="#{not empty managerBean.activeRentals}" styleClass="data-table">
+                <h:column>
+                    <f:facet name="header">Клиент</f:facet>
+                    #{rental.client.name}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Автомобиль</f:facet>
+                    #{rental.car.name}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Срок</f:facet>
+                    #{rental.days} дн., до #{rental.endDate}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Цена</f:facet>
+                    <h:outputText value="#{rental.totalPrice}">
+                        <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                    </h:outputText>
+                </h:column>
+            </h:dataTable>
+        </section>
+    </ui:define>
+</ui:composition>
+</html>

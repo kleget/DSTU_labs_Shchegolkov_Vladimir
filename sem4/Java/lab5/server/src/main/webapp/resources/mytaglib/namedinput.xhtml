@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:composite="http://xmlns.jcp.org/jsf/composite">
+
+<composite:interface>
+    <composite:attribute name="label" required="true"/>
+    <composite:attribute name="property" required="true"/>
+    <composite:attribute name="required" default="true"/>
+    <composite:attribute name="validatorMessage"/>
+    <composite:editableValueHolder name="input" targets="input"/>
+</composite:interface>
+
+<composite:implementation>
+    <div class="form-line">
+        <h:outputLabel for="input" value="#{cc.attrs.label}"/>
+        <h:inputText id="input"
+                     value="#{cc.attrs.property}"
+                     required="#{cc.attrs.required}"
+                     requiredMessage="#{cc.attrs.label}: заполните поле"
+                     validatorMessage="#{cc.attrs.validatorMessage}"
+                     styleClass="text-input"/>
+        <h:message for="input" styleClass="field-error"/>
+    </div>
+</composite:implementation>
+</html>

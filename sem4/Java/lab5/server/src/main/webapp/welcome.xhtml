@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">RentAuto</ui:define>
+
+    <ui:define name="content">
+        <section class="panel">
+            <h1>Приветствуем Вас на стартовой странице нашего сайта!</h1>
+            <p>
+                RentAuto ведет электронный каталог автомобилей, регистрацию клиентов,
+                оформление аренды и рабочее место менеджера фирмы.
+            </p>
+            <p>
+                Для проверки войдите под тестовой учетной записью или зарегистрируйте нового пользователя.
+            </p>
+            <div class="actions">
+                <h:link outcome="/index" value="Авторизация"/>
+                <h:link outcome="/register" value="Регистрация"/>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>
+</html>

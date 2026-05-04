@@ -15,6 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookStore {
+    private static final String TITLE_RE = "^[\\p{L}\\p{N} .,'\"«»:\\-()!?]{1,80}$";
+    private static final String AUTHOR_RE = "^[\\p{L} .'-]{2,60}$";
+    private static final String GENRE_RE = "^[\\p{L} -]{2,30}$";
+    private static final String YEAR_RE = "^(1[5-9]\\d{2}|20\\d{2})$";
+
     private final File file;
 
     public BookStore(ServletContext context) {
@@ -43,6 +48,7 @@ public class BookStore {
     }
 
     public synchronized void add(Book book) throws Exception {
+        validate(book);
         Document doc = load();
         Element e = doc.createElement("book");
         e.setAttribute("id", String.valueOf(System.currentTimeMillis()));
@@ -66,6 +72,21 @@ public class BookStore {
             }
         }
         return false;
+    }
+
+    private static void validate(Book book) {
+        if (!value(book.getTitle()).matches(TITLE_RE)) {
+            throw new IllegalArgumentException("Название: 1-80 символов, только буквы, цифры, пробелы и простые знаки.");
+        }
+        if (!value(book.getAuthor()).matches(AUTHOR_RE)) {
+            throw new IllegalArgumentException("Автор: 2-60 символов, только буквы, пробел, точка, апостроф или дефис.");
+        }
+        if (!value(book.getGenre()).matches(GENRE_RE)) {
+            throw new IllegalArgumentException("Жанр: 2-30 символов, только буквы, пробел или дефис.");
+        }
+        if (!value(book.getYear()).matches(YEAR_RE)) {
+            throw new IllegalArgumentException("Год должен быть числом от 1500 до 2099.");
+        }
     }
 
     private Document load() throws Exception {

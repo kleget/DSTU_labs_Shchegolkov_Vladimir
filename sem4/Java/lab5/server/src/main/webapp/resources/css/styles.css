@@ -1,0 +1,180 @@
+body {
+    margin: 0;
+    background: #f4f6f8;
+    color: #1f2933;
+    font-family: Arial, sans-serif;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 18px 32px;
+    background: #203040;
+    color: white;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo {
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+    background: white;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.company-name {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.company-subtitle {
+    color: #cbd5df;
+    font-size: 14px;
+}
+
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.main-nav {
+    display: flex;
+    gap: 18px;
+    padding: 12px 32px;
+    background: #e7edf2;
+    border-bottom: 1px solid #c9d4dd;
+}
+
+.main-nav a {
+    color: #1b4f72;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.content {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 24px 44px;
+}
+
+.page-footer {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px 24px;
+    background: #203040;
+    color: white;
+}
+
+.panel {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: white;
+    border: 1px solid #d8e0e7;
+    border-radius: 6px;
+}
+
+.form-line {
+    display: grid;
+    grid-template-columns: 160px minmax(220px, 360px) 1fr;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.text-input,
+select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #b8c4ce;
+    border-radius: 4px;
+    font: inherit;
+}
+
+.field-error,
+.error {
+    color: #b42318;
+    font-size: 14px;
+}
+
+.info {
+    color: #0f766e;
+    font-weight: 700;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+input[type="submit"],
+button,
+.link-button {
+    padding: 8px 14px;
+    border: 1px solid #1f5d84;
+    border-radius: 4px;
+    background: #1f6f9f;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+}
+
+.link-button {
+    background: transparent;
+    border-color: #cbd5df;
+}
+
+.secondary {
+    background: #eef3f7;
+    color: #203040;
+    border-color: #b8c4ce;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.data-table th,
+.data-table td {
+    padding: 9px 10px;
+    border: 1px solid #d8e0e7;
+    text-align: left;
+    vertical-align: top;
+}
+
+.data-table th {
+    background: #edf3f8;
+}
+
+.empty-text {
+    color: #617283;
+    font-style: italic;
+}
+
+@media (max-width: 760px) {
+    .page-header,
+    .page-footer,
+    .main-nav,
+    .user-panel {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-line {
+        grid-template-columns: 1fr;
+    }
+}

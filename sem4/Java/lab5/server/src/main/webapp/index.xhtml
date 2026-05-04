@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:my="http://xmlns.jcp.org/jsf/composite/mytaglib">
+
+<ui:composition template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Авторизация</ui:define>
+
+    <ui:define name="content">
+        <section class="panel">
+            <h1>Авторизация</h1>
+            <p>Войдите как менеджер или клиент. Если учетной записи нет, перейдите к регистрации.</p>
+
+            <h:panelGroup rendered="#{not empty flash.info}" layout="block" styleClass="info">
+                <h:outputText value="#{flash.info}"/>
+            </h:panelGroup>
+            <h:messages globalOnly="true" styleClass="error"/>
+
+            <h:form>
+                <my:namedinput label="Имя" property="#{authBean.name}"/>
+                <my:namedinput label="Пароль" property="#{authBean.password}"/>
+                <div class="actions">
+                    <h:commandButton value="Войти" action="#{authBean.login}"/>
+                    <h:link outcome="/register" value="Регистрация"/>
+                </div>
+            </h:form>
+
+            <p class="empty-text">Тестовые пользователи: manager / manager, client / client.</p>
+        </section>
+    </ui:define>
+</ui:composition>
+</html>

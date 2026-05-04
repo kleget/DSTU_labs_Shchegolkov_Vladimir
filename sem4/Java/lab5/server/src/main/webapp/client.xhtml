@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<f:metadata>
+    <f:viewAction action="#{authBean.requireClient}"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Клиент</ui:define>
+
+    <ui:define name="content">
+        <section class="panel">
+            <h1>Личный кабинет клиента</h1>
+            <p>Клиент видит свои активные аренды, возвращает автомобили и выбирает свободные машины.</p>
+            <h:messages globalOnly="true" styleClass="error info"/>
+        </section>
+
+        <section class="panel">
+            <h2>Мои арендованные автомобили</h2>
+            <h:panelGroup rendered="#{empty clientBean.myRentals}" layout="block" styleClass="empty-text">
+                Сейчас у Вас нет арендованных автомобилей.
+            </h:panelGroup>
+
+            <h:form rendered="#{not empty clientBean.myRentals}">
+                <h:dataTable value="#{clientBean.myRentals}" var="rental" styleClass="data-table">
+                    <h:column>
+                        <f:facet name="header">Автомобиль</f:facet>
+                        #{rental.car.name}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Серийный номер</f:facet>
+                        #{rental.car.serialNumber}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Срок аренды</f:facet>
+                        #{rental.days} дн., до #{rental.endDate}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Общая цена</f:facet>
+                        <h:outputText value="#{rental.totalPrice}">
+                            <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                        </h:outputText>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Действия</f:facet>
+                        <h:commandButton value="Удалить из списка" action="#{clientBean.closeRental(rental.id)}"/>
+                    </h:column>
+                </h:dataTable>
+            </h:form>
+        </section>
+
+        <section class="panel">
+            <h2>Доступные автомобили</h2>
+            <h:panelGroup rendered="#{empty clientBean.availableCars}" layout="block" styleClass="empty-text">
+                Свободных автомобилей нет.
+            </h:panelGroup>
+
+            <h:form rendered="#{not empty clientBean.availableCars}">
+                <h:dataTable value="#{clientBean.availableCars}" var="car" styleClass="data-table">
+                    <h:column>
+                        <f:facet name="header">Название</f:facet>
+                        #{car.name}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Цвет</f:facet>
+                        #{car.color}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Состояние</f:facet>
+                        #{car.conditionInfo}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Цена за день</f:facet>
+                        <h:outputText value="#{car.pricePerDay}">
+                            <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                        </h:outputText>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Действие</f:facet>
+                        <h:commandButton value="Выбрать" action="#{clientBean.selectCar(car.id)}" styleClass="secondary"/>
+                    </h:column>
+                </h:dataTable>
+            </h:form>
+        </section>
+
+        <h:panelGroup rendered="#{clientBean.selectedCar != null}" layout="block" styleClass="panel">
+            <h2>Оформление аренды</h2>
+            <h:form>
+                <h:inputHidden value="#{clientBean.selectedCarId}"/>
+                <p>
+                    Выбран автомобиль:
+                    <strong>#{clientBean.selectedCar.name}</strong>,
+                    цвет #{clientBean.selectedCar.color},
+                    состояние: #{clientBean.selectedCar.conditionInfo}.
+                </p>
+                <p>
+                    Цена за день:
+                    <h:outputText value="#{clientBean.selectedCar.pricePerDay}">
+                        <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                    </h:outputText>
+                </p>
+
+                <div class="form-line">
+                    <h:outputLabel for="days" value="Количество дней"/>
+                    <h:inputText id="days" value="#{clientBean.days}" required="true"
+                                 requiredMessage="Укажите срок аренды" styleClass="text-input">
+                        <f:validateLongRange minimum="1" maximum="365"/>
+                        <f:ajax event="keyup" execute="@form" render="totalPrice daysMessage"/>
+                        <f:ajax event="change" execute="@form" render="totalPrice daysMessage"/>
+                    </h:inputText>
+                    <h:message id="daysMessage" for="days" styleClass="field-error"/>
+                </div>
+
+                <p>
+                    Общая сумма:
+                    <strong>
+                        <h:outputText id="totalPrice" value="#{clientBean.totalPrice}">
+                            <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                        </h:outputText>
+                    </strong>
+                </p>
+
+                <div class="actions">
+                    <h:commandButton value="Арендовать" action="#{clientBean.rentSelected}"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>
+</html>

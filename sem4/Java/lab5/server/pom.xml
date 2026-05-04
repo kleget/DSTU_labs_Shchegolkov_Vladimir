@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>lab5</groupId>
+    <artifactId>lab5-server</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty.http.port>8085</jetty.http.port>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.faces</artifactId>
+            <version>4.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet-shaded</artifactId>
+            <version>5.1.2.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.6.3.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.3.232</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>lab5</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-maven-plugin</artifactId>
+                <version>12.0.16</version>
+                <configuration>
+                    <httpConnector>
+                        <port>${jetty.http.port}</port>
+                    </httpConnector>
+                    <webApp>
+                        <contextPath>/lab5</contextPath>
+                    </webApp>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,4 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <users>
-    <user login="admin" hash="8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"/>
+                
+    
+    
+    <user hash="8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" login="admin"/>
+            
+    
+    
+    <user hash="5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5" login="vova"/>
+        
+    
+    <user hash="a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3" login="123"/>
+    
+    <user hash="aedec0d0ca66f380aed5fa5634c513c1bdfedc50ff2d734104809ddbc8b82295" login="1244"/>
 </users>

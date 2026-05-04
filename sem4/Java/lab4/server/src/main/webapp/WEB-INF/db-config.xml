@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+    <driver>org.h2.Driver</driver>
+    <url>jdbc:h2:./lab4db;DB_CLOSE_DELAY=-1</url>
+    <user>sa</user>
+    <password></password>
+</database>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+
+    <display-name>lab3</display-name>
+
+    <servlet>
+        <servlet-name>LibraryServlet</servlet-name>
+        <servlet-class>lab3.LibraryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LibraryServlet</servlet-name>
+        <url-pattern>/library</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BooksApiServlet</servlet-name>
+        <servlet-class>lab3.BooksApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BooksApiServlet</servlet-name>
+        <url-pattern>/api/books</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GameServlet</servlet-name>
+        <servlet-class>lab3.GameServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GameServlet</servlet-name>
+        <url-pattern>/game</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

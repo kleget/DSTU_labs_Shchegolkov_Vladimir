@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:my="http://xmlns.jcp.org/jsf/composite/mytaglib">
+
+<ui:composition template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Регистрация</ui:define>
+
+    <ui:define name="content">
+        <section class="panel">
+            <h1>Регистрация пользователя</h1>
+            <p>Форма содержит проверку имени, e-mail, телефона и пароля.</p>
+
+            <h:messages globalOnly="true" styleClass="error"/>
+
+            <h:form>
+                <my:namedinput label="Имя" property="#{registerBean.name}"/>
+
+                <my:namedinput label="e-mail"
+                               property="#{registerBean.email}"
+                               validatorMessage="Введите корректный e-mail">
+                    <f:validateRegex for="input" pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"/>
+                </my:namedinput>
+
+                <my:namedinput label="Телефон"
+                               property="#{registerBean.phone}"
+                               validatorMessage="Введите телефон из цифр, пробелов, скобок, дефисов и знака +">
+                    <f:validateRegex for="input" pattern="^\+?[0-9 ()-]{7,20}$"/>
+                </my:namedinput>
+
+                <my:namedinput label="Пароль" property="#{registerBean.password}"/>
+
+                <div class="form-line">
+                    <h:outputLabel for="role" value="Роль"/>
+                    <h:selectOneMenu id="role" value="#{registerBean.role}">
+                        <f:selectItems value="#{registerBean.roles}" var="role"
+                                       itemValue="#{role}" itemLabel="#{role.title}"/>
+                    </h:selectOneMenu>
+                    <h:message for="role" styleClass="field-error"/>
+                </div>
+
+                <div class="actions">
+                    <h:commandButton value="Подтвердить" action="#{registerBean.register}"/>
+                    <h:link outcome="/index" value="Вернуться к авторизации"/>
+                </div>
+            </h:form>
+        </section>
+    </ui:define>
+</ui:composition>
+</html>
