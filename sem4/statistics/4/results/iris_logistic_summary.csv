@@ -1,4 +1,0 @@
-model,coef,intercept,boundary,accuracy
-binary_logistic,3.6321658746708962,-19.970334898035293,5.498189121069469,
-LDA_generative,,,5.548333333333332,
-softmax,,,,0.9888888888888889

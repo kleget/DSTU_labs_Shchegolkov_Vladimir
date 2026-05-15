@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-# Данные
 x_values = np.array([
     4.9, 8.4, 14.5, 8.6, 16.0, 14.1, 10.7, 6.3, 12.6, 1.1,
     11.7, 14.7, 4.7, 15.2, 23.7, 0.3, 10.4, 5.6, 13.1, 8.0,
@@ -20,7 +19,6 @@ s_std = np.std(x_values, ddof=1)
 
 print(f"n = {n}, x̄ = {x_mean:.3f}, S = {s_std:.3f}")
 
-# Гистограмма
 plt.hist(x_values, bins=7, edgecolor='black', alpha=0.7)
 plt.title("Гистограмма значений")
 plt.xlabel("x")
