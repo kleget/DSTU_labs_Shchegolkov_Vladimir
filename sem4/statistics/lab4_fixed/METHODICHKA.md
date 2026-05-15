@@ -29,11 +29,11 @@ lab4/
 │   ├── 07_ab_testing_custom.ipynb
 │   ├── 08_challenger_disaster.ipynb
 │   └── 09_advanced_ab_testing.ipynb
-├── main.py                        # пустой, его запускать не надо
+├── main.py                        # запуск JupyterLab или проверка всех ноутбуков
 └── requirements.txt               # есть в исправленной версии архива
 ```
 
-Главное находится в папке `notebooks`. Файл `main.py` пустой, его не трогай: лабораторная запускается не через него, а через Jupyter Notebook / JupyterLab.
+Главное находится в папке `notebooks`. Лабораторная запускается через Jupyter Notebook / JupyterLab. Файл `main.py` можно использовать как удобный запускатель.
 
 ---
 
@@ -166,7 +166,7 @@ pip install -r requirements.txt
 
 ```powershell
 python -m pip install --upgrade pip
-pip install jupyterlab notebook numpy pandas matplotlib seaborn scipy scikit-learn arviz pymc
+pip install jupyterlab notebook numpy pandas matplotlib seaborn scipy scikit-learn arviz==0.22.0 pymc==5.28.5
 ```
 
 Проверь, что основные библиотеки импортируются:
@@ -185,6 +185,12 @@ python -c "import pymc, arviz, numpy, pandas, sklearn; print('ok')"
 
 ```powershell
 jupyter lab
+```
+
+Или запусти через `main.py`:
+
+```powershell
+python main.py
 ```
 
 Откроется браузер. Слева будет дерево файлов. Открой папку `notebooks` и запускай файлы по порядку.
@@ -955,15 +961,17 @@ tips = pd.read_csv("../data/own_robust_data.csv")
 
 ```python
 trace = pm.sample(
-    draws=1000,
-    tune=1000,
+    draws=200,
+    tune=200,
     chains=2,
     cores=1,
+    progressbar=False,
+    compile_kwargs={"mode": "NUMBA"},
     random_seed=42
 )
 ```
 
-Но для финальной сдачи лучше оставить исходные значения, если всё запускается.
+В исправленной версии используются такие параметры, чтобы ноутбуки нормально запускались на Windows без установленного `g++`.
 
 ---
 
