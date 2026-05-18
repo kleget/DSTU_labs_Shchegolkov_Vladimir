@@ -1,0 +1,134 @@
+{
+  "compression": [
+    {
+      "typo_rate": 0.1,
+      "before": 89,
+      "after": 57,
+      "merged": 32,
+      "reduction_pct": 36.0
+    },
+    {
+      "typo_rate": 0.2,
+      "before": 129,
+      "after": 76,
+      "merged": 53,
+      "reduction_pct": 41.1
+    },
+    {
+      "typo_rate": 0.3,
+      "before": 167,
+      "after": 88,
+      "merged": 79,
+      "reduction_pct": 47.3
+    },
+    {
+      "typo_rate": 0.4,
+      "before": 247,
+      "after": 132,
+      "merged": 115,
+      "reduction_pct": 46.6
+    },
+    {
+      "typo_rate": 0.5,
+      "before": 254,
+      "after": 119,
+      "merged": 135,
+      "reduction_pct": 53.1
+    },
+    {
+      "typo_rate": 0.6,
+      "before": 305,
+      "after": 153,
+      "merged": 152,
+      "reduction_pct": 49.8
+    }
+  ],
+  "performance": [
+    {
+      "dict_size": 91,
+      "time_naive_ms": 95.23,
+      "time_opt_ms": 3.88,
+      "cmp_naive": 3321,
+      "cmp_opt": 110,
+      "speedup": 24.55,
+      "cmp_ratio": 30.19
+    },
+    {
+      "dict_size": 168,
+      "time_naive_ms": 390.68,
+      "time_opt_ms": 11.38,
+      "cmp_naive": 11781,
+      "cmp_opt": 300,
+      "speedup": 34.32,
+      "cmp_ratio": 39.27
+    },
+    {
+      "dict_size": 324,
+      "time_naive_ms": 1481.31,
+      "time_opt_ms": 38.32,
+      "cmp_naive": 45150,
+      "cmp_opt": 1041,
+      "speedup": 38.66,
+      "cmp_ratio": 43.37
+    },
+    {
+      "dict_size": 538,
+      "time_naive_ms": 4200.08,
+      "time_opt_ms": 97.47,
+      "cmp_naive": 129286,
+      "cmp_opt": 2821,
+      "speedup": 43.09,
+      "cmp_ratio": 45.83
+    },
+    {
+      "dict_size": 936,
+      "time_naive_ms": 13423.14,
+      "time_opt_ms": 296.72,
+      "cmp_naive": 400065,
+      "cmp_opt": 8256,
+      "speedup": 45.24,
+      "cmp_ratio": 48.46
+    },
+    {
+      "dict_size": 1634,
+      "time_naive_ms": 40945.33,
+      "time_opt_ms": 933.24,
+      "cmp_naive": 1205128,
+      "cmp_opt": 25268,
+      "speedup": 43.87,
+      "cmp_ratio": 47.69
+    }
+  ],
+  "threshold": [
+    {
+      "max_dist": 0,
+      "before": 233,
+      "after": 233,
+      "merged": 0
+    },
+    {
+      "max_dist": 1,
+      "before": 233,
+      "after": 185,
+      "merged": 48
+    },
+    {
+      "max_dist": 2,
+      "before": 233,
+      "after": 110,
+      "merged": 123
+    },
+    {
+      "max_dist": 3,
+      "before": 233,
+      "after": 91,
+      "merged": 142
+    },
+    {
+      "max_dist": 4,
+      "before": 233,
+      "after": 99,
+      "merged": 134
+    }
+  ]
+}
