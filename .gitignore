@@ -1,5 +1,41 @@
 .idea/
 venv/
+.venv/
+__pycache__/
+*.py[cod]
 test.py
 *.class
 *.txt
+
+# Visual Studio cache and build output
+.vs/
+**/x64/
+**/Debug/
+*.exe
+*.obj
+/.vscode
+*.pdb
+*.ilk
+*.idb
+*.ipch
+*.vsidx
+*.tlog
+*.recipe
+*.lastbuildstate
+*.vcxproj.user
+
+# Maven output and local database files
+**/target/
+*.mv.db
+*.trace.db
+
+# Local C++ runner output
+/out/cpp/
+
+# Old semester 4 lab projects kept locally under the output directory
+/out/lab4/
+/out/lab5/
+/out/lab6/
+
+# Old local semester 4 note; keep on disk but out of Git
+/sem4/coursavaya/Теория_к_защите_ВМО21.md
