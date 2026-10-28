@@ -1,0 +1,4 @@
+﻿dataset,objects,features,p_requested,k,initial_matrix_max_abs_error,p2_pair_agreement,p2_max_merge_height_difference,scatter_dimensions,cluster_file,dendrogram_file,scatter_file
+regions,18,3,2,2,0,1,2.22044604925e-16,3,results\p_2\regions_clusters_p2_k2.csv,results\p_2\regions_dendrogram_p2.png,results\p_2\regions_scatter_p2.png
+small_regions,6,2,2,2,0,1,4.4408920985e-16,2,results\p_2\small_regions_clusters_p2_k2.csv,results\p_2\small_regions_dendrogram_p2.png,results\p_2\small_regions_scatter_p2.png
+iris,150,4,2,2,4.4408920985e-16,1,8.881784197e-16,3,results\p_2\iris_clusters_p2_k2.csv,results\p_2\iris_dendrogram_p2.png,results\p_2\iris_scatter_p2.png
