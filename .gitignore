@@ -37,5 +37,10 @@ test.py
 /out/lab5/
 /out/lab6/
 
+/sem1
+/sem2
+/sem3
+
 # Old local semester 4 note; keep on disk but out of Git
 /sem4/coursavaya/Теория_к_защите_ВМО21.md
+

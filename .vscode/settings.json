@@ -7,5 +7,12 @@
     "C:/soft/javafx-sdk-21.0.10/lib/*.jar",
     "${env:TOMCAT_HOME}/lib/*.jar",
     "sem4/java/lab2/server/lib/*.jar"
-  ]
+  ],
+  "code-runner.executorMap": {
+    "cpp": "& \"${workspaceRoot}\\.vscode\\run-cpp.cmd\" $fullFileName \"${workspaceRoot}\""
+  },
+  "code-runner.runInTerminal": true,
+  "code-runner.fileDirectoryAsCwd": true,
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.clearPreviousOutput": true
 }
