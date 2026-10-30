@@ -13,7 +13,11 @@ test.py
 **/Debug/
 *.exe
 *.obj
-/.vscode
+# Keep shared VS Code project settings in Git, ignore local workspace state.
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/launch.json
+!/.vscode/tasks.json
 *.pdb
 *.ilk
 *.idb
