@@ -27,6 +27,14 @@ RESULTS_DIR = BASE_DIR / "results"
 MATRIX_DATASET_LIMIT = 20
 
 
+def format_decimal(value: float, precision: int = 20) -> str:
+    """Format a number without scientific notation, trimming insignificant zeros."""
+    if not np.isfinite(value):
+        return str(value)
+    formatted = f"{value:.{precision}f}".rstrip("0").rstrip(".")
+    return "0" if formatted in {"", "-0"} else formatted
+
+
 DATASETS = [
     {
         "key": "regions",
@@ -248,8 +256,9 @@ def print_matrix_examples(snapshots: list[tuple[int, pd.DataFrame]], n_objects: 
         indices = sorted({0, min(1, len(snapshots) - 1), len(snapshots) - 1})
         selected = [snapshots[index] for index in indices]
     for step, matrix in selected:
-        print(f"\nR_{step} — расстояния между текущими центроидами:")
-        print(matrix.to_string(float_format=lambda value: f"{value:8.4f}"))
+        upper_triangle = matrix.mask(np.tril(np.ones(matrix.shape, dtype=bool)))
+        print(f"\nR_{step} — верхнетреугольная матрица расстояний между текущими центроидами:")
+        print(upper_triangle.to_string(float_format=lambda value: f"{value:8.4f}", na_rep=""))
 
 
 def save_matrix_snapshots(
@@ -267,6 +276,7 @@ def save_matrix_snapshots(
             matrix_dir / f"{dataset_key}_p{p_tag}_R{step:02d}.csv",
             encoding="utf-8-sig",
             float_format="%.8f",
+            lineterminator="\n",
         )
 
 
@@ -275,6 +285,7 @@ def plot_dendrogram(
     object_labels: list[str],
     title: str,
     p: float,
+    k: int,
     destination: Path,
 ) -> None:
     """Нарисовать дендрограмму ручной иерархии."""
@@ -287,14 +298,62 @@ def plot_dendrogram(
     if len(object_labels) <= 40:
         options["labels"] = object_labels
     else:
+        n_objects = len(object_labels)
+
+        def truncated_leaf_label(cluster_id: int) -> str:
+            if cluster_id < n_objects:
+                return object_labels[cluster_id]
+            cluster_size = int(z[cluster_id - n_objects, 3])
+            return f"Группа ({cluster_size})"
+
         options["truncate_mode"] = "lastp"
         options["p"] = 30
         options["show_contracted"] = True
+        options["leaf_label_func"] = truncated_leaf_label
+        options["leaf_font_size"] = 7
     dendrogram(z, **options)
     ax.set_title(f"Дендрограмма: {title}; центроид, Минковский p={p:g}")
-    ax.set_xlabel("Объекты" if len(object_labels) <= 40 else "Последние слияния групп")
+    ax.set_xlabel(
+        "Объекты" if len(object_labels) <= 40
+        else "Последние слияния; «Группа (N)» содержит N объектов"
+    )
     ax.set_ylabel("Расстояние между центроидами")
-    fig.tight_layout()
+
+    n_objects = len(object_labels)
+    last_merge_at_k = z[n_objects - k - 1, 2]
+    first_merge_below_k = z[n_objects - k, 2]
+    cut_height = (last_merge_at_k + first_merge_below_k) / 2
+    ax.axhline(cut_height, color="black", linestyle="--", linewidth=1.1)
+    ax.text(
+        0.99,
+        cut_height,
+        f" разрез: k={k}",
+        transform=ax.get_yaxis_transform(),
+        ha="right",
+        va="bottom",
+        fontsize=8,
+        color="black",
+        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8, "pad": 1.5},
+    )
+
+    tolerance = 1e-12 * max(1.0, float(np.max(np.abs(z[:, 2]))))
+    inversion_count = sum(
+        z[merge_index, 2] < z[int(child_id) - n_objects, 2] - tolerance
+        for merge_index, row in enumerate(z)
+        for child_id in row[:2]
+        if child_id >= n_objects
+    )
+    if inversion_count:
+        fig.text(
+            0.5,
+            0.015,
+            f"Высотные инверсии: {inversion_count} — допустимая особенность метода центроидов",
+            ha="center",
+            fontsize=8,
+        )
+        fig.tight_layout(rect=(0, 0.06, 1, 1))
+    else:
+        fig.tight_layout()
     fig.savefig(destination, dpi=160, bbox_inches="tight")
 
 
@@ -363,7 +422,13 @@ def plot_scatter(
 
 
 def save_merge_history(history: list[dict], destination: Path) -> None:
-    pd.DataFrame(history).to_csv(destination, index=False, encoding="utf-8-sig", float_format="%.8f")
+    pd.DataFrame(history).to_csv(
+        destination,
+        index=False,
+        encoding="utf-8-sig",
+        float_format="%.8f",
+        lineterminator="\n",
+    )
 
 
 def run_dataset(
@@ -392,11 +457,11 @@ def run_dataset(
     cluster_file = result_dir / f"{config['key']}_clusters_p{p_tag}_k{k}.csv"
     pd.DataFrame(
         {"Объект": object_labels, "Кластер": labels_manual}
-    ).to_csv(cluster_file, index=False, encoding="utf-8-sig")
+    ).to_csv(cluster_file, index=False, encoding="utf-8-sig", lineterminator="\n")
     save_merge_history(history, result_dir / f"{config['key']}_merges_p{p_tag}.csv")
 
     dendrogram_path = result_dir / f"{config['key']}_dendrogram_p{p_tag}.png"
-    plot_dendrogram(z_manual, object_labels, config["title"], p, dendrogram_path)
+    plot_dendrogram(z_manual, object_labels, config["title"], p, k, dendrogram_path)
     figures.append(plt.gcf())
 
     scatter_path = result_dir / f"{config['key']}_scatter_p{p_tag}.png"
@@ -423,9 +488,14 @@ def run_dataset(
     first_matrix_difference = initial_distance_check(x, p)
 
     print(f"\nСлияния ручного алгоритма: {len(history)}; итоговое разбиение для графика: k={k}.")
-    print(f"Максимальное расхождение начальной матрицы и scipy.pdist при p={p:g}: {first_matrix_difference:.3e}")
-    print(f"Ручной алгоритм и SciPy centroid при p=2: согласие пар на k={k} — {agreement:.1%}; "
-          f"макс. разница высот слияний — {height_difference:.3e}.")
+    print(
+        "Максимальное расхождение начальной матрицы и scipy.pdist "
+        f"при p={format_decimal(p)}: {format_decimal(first_matrix_difference)}"
+    )
+    print(
+        f"Ручной алгоритм и SciPy centroid при p=2: согласие пар на k={k} — {agreement:.1%}; "
+        f"макс. разница высот слияний — {height_difference:.5f}."
+    )
     if not np.isclose(p, 2.0):
         print("Для выбранного p SciPy не используется как centroid-кластеризатор: его centroid-linkage "
               "определён для евклидовой метрики. Сравнение полной иерархии выше выполнено отдельно при p=2.")
@@ -463,6 +533,7 @@ def main() -> None:
         raise SystemExit("Параметр --p должен быть конечным и не меньше 1.")
 
     loaded = [(config, read_dataset(config)) for config in DATASETS]
+    loaded.sort(key=lambda item: len(item[1][1]))
     min_objects = min(len(data[1]) for _, data in loaded)
     k = args.k if args.k is not None else read_cluster_count(min_objects)
     if not 2 <= k <= min_objects:
@@ -470,26 +541,33 @@ def main() -> None:
 
     output_dir = RESULTS_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
-    figures: list[plt.Figure] = []
-    summaries = [
-        run_dataset(config, dataset, p, k, output_dir, figures)
-        for config, dataset in loaded
-    ]
+    summaries: list[dict] = []
+    for config, dataset in loaded:
+        dataset_figures: list[plt.Figure] = []
+        summaries.append(run_dataset(config, dataset, p, k, output_dir, dataset_figures))
+
+        if args.no_show:
+            for figure in dataset_figures:
+                plt.close(figure)
+        else:
+            print("\nОткрыты две диаграммы текущего набора. Закройте оба окна, чтобы перейти к следующему.")
+            plt.show()
 
     summary_dir = output_dir / f"p_{p:g}".replace(".", "_")
     summary_dir.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(summaries).to_csv(
-        summary_dir / "comparison_summary.csv", index=False, encoding="utf-8-sig", float_format="%.12g"
+    summary_frame = pd.DataFrame(summaries)
+    summary_frame["p2_max_merge_height_difference"] = summary_frame[
+        "p2_max_merge_height_difference"
+    ].map(lambda value: f"{value:.5f}")
+    summary_frame.to_csv(
+        summary_dir / "comparison_summary.csv",
+        index=False,
+        encoding="utf-8-sig",
+        float_format=lambda value: format_decimal(value),
+        lineterminator="\n",
     )
     print(f"\nСозданы 6 графиков и таблицы результатов: {summary_dir}")
     print("Матрицы R_t для двух малых наборов сохранены в папке results/matrices.")
-
-    if args.no_show:
-        for figure in figures:
-            plt.close(figure)
-    else:
-        plt.show()
-
 
 if __name__ == "__main__":
     main()
