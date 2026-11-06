@@ -1,0 +1,6 @@
+step,cluster_a,cluster_b,distance,merged_cluster,size
+1,C1,C5,0.73525560,C7,2
+2,C3,C6,1.14799249,C8,2
+3,C4,C8,1.33528092,C9,3
+4,C2,C7,1.44740765,C10,3
+5,C9,C10,3.60263815,C11,6
