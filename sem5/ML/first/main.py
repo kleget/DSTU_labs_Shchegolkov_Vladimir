@@ -1,8 +1,4 @@
-"""Агломеративная кластеризация Минковского с методом центроидов.
-
-Ручная часть каждый раз пересчитывает центры активных кластеров и расстояния
-между ними. SciPy используется как независимая библиотечная реализация при p=2.
-"""
+"""Агломеративная кластеризация методом ближайшего соседа. Проверка через SciPy."""
 
 from __future__ import annotations
 
@@ -12,6 +8,7 @@ from itertools import combinations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_hex
 import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import dendrogram, linkage
@@ -23,8 +20,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 BASE_DIR = Path(__file__).resolve().parent
-RESULTS_DIR = BASE_DIR / "results"
-MATRIX_DATASET_LIMIT = 20
+RESULTS_DIR = BASE_DIR / "results" / "single"
 
 
 def format_decimal(value: float, precision: int = 20) -> str:
@@ -36,6 +32,14 @@ def format_decimal(value: float, precision: int = 20) -> str:
 
 
 DATASETS = [
+    {
+        "key": "small_regions",
+        "title": "Регионы — учебный набор из шести объектов",
+        "file": "small_regions.csv",
+        "label_column": "Область",
+        "feature_columns": ["Машиностроение %", "Электроэнергетика %"],
+        "visual_columns": ["Машиностроение %", "Электроэнергетика %"],
+    },
     {
         "key": "regions",
         "title": "Регионы России — показатели расходов",
@@ -53,33 +57,36 @@ DATASETS = [
         ],
     },
     {
-        "key": "small_regions",
-        "title": "Регионы — учебный набор из шести объектов",
-        "file": "small_regions.csv",
-        "label_column": "Область",
-        "feature_columns": ["Машиностроение %", "Электроэнергетика %"],
-        "visual_columns": ["Машиностроение %", "Электроэнергетика %"],
-    },
-    {
-        "key": "iris",
-        "title": "Измерения цветков UCI Iris",
-        "file": "iris.csv",
-        "label_column": "Object",
-        "feature_columns": [
-            "Sepal_length_cm",
-            "Sepal_width_cm",
-            "Petal_length_cm",
-            "Petal_width_cm",
-        ],
-        "visual_columns": ["Sepal_length_cm", "Petal_length_cm", "Petal_width_cm"],
+        "key": "attenu",
+        "title": "Записи сейсмостанций Калифорнии",
+        "file": "attenu.csv",
+        "label_column": "Номер наблюдения",
+        "feature_columns": ["Моментная магнитуда", "Расстояние до гипоцентра, км", "Пиковое ускорение, g"],
+        "visual_columns": ["Моментная магнитуда", "Расстояние до гипоцентра, км", "Пиковое ускорение, g"],
     },
 ]
 
 
-def read_p(prompt: str = "Введите p для расстояния Минковского (p >= 1): ") -> float:
+def read_dataset_choice() -> str:
+    print("0. Все наборы по очереди")
+    for number, config in enumerate(DATASETS, start=1):
+        print(f"{number}. {config['title']} ({config['file']})")
+    while True:
+        choice = input("Выберите набор данных (Enter = все): ").strip()
+        if choice in ("", "0"):
+            return "all"
+        for number, config in enumerate(DATASETS, start=1):
+            if choice == str(number):
+                return config["key"]
+        print(f"Введите номер от 0 до {len(DATASETS)}.")
+
+
+def read_p(prompt: str = "Введите p для расстояния Минковского (Enter = 2, евклидово): ") -> float:
     """Запросить допустимый показатель Минковского."""
     while True:
         raw = input(prompt).strip().replace(",", ".")
+        if not raw:
+            return 2.0
         try:
             p = float(raw)
         except ValueError:
@@ -90,11 +97,11 @@ def read_p(prompt: str = "Введите p для расстояния Минк�
         print("Для метрики Минковского p должен быть конечным числом не меньше 1.")
 
 
-def read_cluster_count(maximum: int) -> int:
+def read_cluster_count(maximum: int, title: str) -> int:
     """Запросить число кластеров для раскраски графиков."""
     default = min(2, maximum)
     while True:
-        raw = input(f"Сколько кластеров показать? [2..{maximum}, Enter = {default}]: ").strip()
+        raw = input(f"{title}: сколько кластеров показать? [2..{maximum}, Enter = {default}]: ").strip()
         if not raw:
             return default
         try:
@@ -107,8 +114,8 @@ def read_cluster_count(maximum: int) -> int:
         print(f"Допустимое число кластеров: от 2 до {maximum}.")
 
 
-def read_dataset(config: dict) -> tuple[pd.DataFrame, list[str], np.ndarray, np.ndarray]:
-    """Загрузить CSV и стандартизировать числовые признаки."""
+def read_dataset(config: dict) -> tuple[pd.DataFrame, list[str], np.ndarray]:
+    """Загрузить CSV; использовать числовые признаки в исходном масштабе."""
     path = BASE_DIR / config["file"]
     if not path.is_file():
         raise FileNotFoundError(f"Не найден набор данных: {path}")
@@ -119,6 +126,9 @@ def read_dataset(config: dict) -> tuple[pd.DataFrame, list[str], np.ndarray, np.
     if missing_columns:
         raise ValueError(f"В файле {path.name} отсутствуют столбцы: {missing_columns}")
 
+    identifiers = frame[config["label_column"]]
+    if identifiers.isna().any() or identifiers.duplicated().any():
+        raise ValueError(f"В {path.name} пропущен или повторяется идентификатор объекта.")
     labels = frame[config["label_column"]].astype(str).tolist()
     values = frame[config["feature_columns"]].apply(pd.to_numeric, errors="coerce")
     if values.isna().any().any():
@@ -128,86 +138,73 @@ def read_dataset(config: dict) -> tuple[pd.DataFrame, list[str], np.ndarray, np.
     raw_x = values.to_numpy(dtype=float)
     if len(raw_x) < 2 or not np.isfinite(raw_x).all():
         raise ValueError(f"Для кластеризации в {path.name} нужно не менее двух конечных строк.")
+    if config["key"] == "attenu" and (values[["Расстояние до гипоцентра, км", "Пиковое ускорение, g"]] < 0).any().any():
+        raise ValueError(f"В {path.name} расстояние и пиковое ускорение должны быть неотрицательными.")
 
-    mean = raw_x.mean(axis=0)
-    scale = raw_x.std(axis=0)
-    scale[scale == 0] = 1.0
-    standardized_x = (raw_x - mean) / scale
-    return frame, labels, raw_x, standardized_x
+    return frame, labels, raw_x
 
 
 def minkowski_distance(first: np.ndarray, second: np.ndarray, p: float) -> float:
     """Расстояние Минковского между двумя векторами признаков."""
-    return float(np.sum(np.abs(first - second) ** p) ** (1.0 / p))
+    delta = np.abs(first - second)
+    scale = delta.max()
+    if scale == 0:
+        return 0.0
+    # Масштабирование внутри формулы защищает степень от переполнения при большом p.
+    return float(scale * np.sum((delta / scale) ** p) ** (1.0 / p))
 
 
-def cluster_distance_matrix(
-    active_ids: list[int],
-    members: dict[int, list[int]],
-    x: np.ndarray,
-    p: float,
-) -> np.ndarray:
-    """Построить матрицу расстояний между центроидами активных кластеров."""
-    centers = {
-        cluster_id: x[members[cluster_id]].mean(axis=0)
-        for cluster_id in active_ids
-    }
-    matrix = np.zeros((len(active_ids), len(active_ids)), dtype=float)
-    for i, j in combinations(range(len(active_ids)), 2):
-        distance = minkowski_distance(centers[active_ids[i]], centers[active_ids[j]], p)
-        matrix[i, j] = distance
-        matrix[j, i] = distance
+def initial_distance_matrix(x: np.ndarray, p: float) -> np.ndarray:
+    matrix = np.zeros((len(x), len(x)))
+    for i, j in combinations(range(len(x)), 2):
+        matrix[i, j] = matrix[j, i] = minkowski_distance(x[i], x[j], p)
     return matrix
 
 
-def manual_centroid_linkage(
-    x: np.ndarray,
-    p: float,
-    keep_matrices: bool = False,
+def lance_williams_single(d_ac, d_bc, d_ab):
+    """Для single: α_A = α_B = 1/2, β = 0, γ = −1/2."""
+    alpha_a, alpha_b, beta, gamma = 0.5, 0.5, 0.0, -0.5
+    return alpha_a * d_ac + alpha_b * d_bc + beta * d_ab + gamma * np.abs(d_ac - d_bc)
+
+
+def manual_single_linkage(
+    initial: np.ndarray, keep_matrices: bool = False,
 ) -> tuple[np.ndarray, list[dict], list[tuple[int, pd.DataFrame]]]:
-    """Построить полную иерархию ручным методом ближайших центроидов."""
-    n_objects = len(x)
+    """В R_t находим минимум, сохраняем старый блок и добавляем строку и столбец."""
+    distances = initial
+    n_objects = len(initial)
     active_ids = list(range(n_objects))
-    members = {object_id: [object_id] for object_id in active_ids}
-    next_id = n_objects
-    merges: list[list[float]] = []
-    history: list[dict] = []
-    snapshots: list[tuple[int, pd.DataFrame]] = []
-
-    while len(active_ids) > 1:
-        active_ids.sort()
-        distances = cluster_distance_matrix(active_ids, members, x, p)
-
+    sizes = {i: 1 for i in active_ids}
+    merges = []
+    history = []
+    snapshots = []
+    for step in range(n_objects - 1):
         if keep_matrices:
-            cluster_names = [f"C{cluster_id + 1}" for cluster_id in active_ids]
-            snapshot = pd.DataFrame(distances, index=cluster_names, columns=cluster_names)
-            snapshots.append((n_objects - len(active_ids), snapshot))
+            names = [f"C{i + 1}" for i in active_ids]
+            snapshots.append((step, pd.DataFrame(distances, index=names, columns=names)))
+        rows, cols = np.triu_indices(len(active_ids), k=1)
+        closest = np.argmin(distances[rows, cols])
+        i, j = rows[closest], cols[closest]
+        left, right = active_ids[i], active_ids[j]
+        height = distances[i, j]
+        new_id = n_objects + step
+        sizes[new_id] = sizes[left] + sizes[right]
+        merges.append([left, right, height, sizes[new_id]])
+        history.append({
+            "step": step + 1, "cluster_a": f"C{left + 1}", "cluster_b": f"C{right + 1}",
+            "distance": height, "merged_cluster": f"C{new_id + 1}",
+            "size": sizes[new_id], "clusters_left": len(active_ids) - 1,
+        })
 
-        candidates = [
-            (distances[i, j], active_ids[i], active_ids[j])
-            for i, j in combinations(range(len(active_ids)), 2)
-        ]
-        distance, left_id, right_id = min(candidates, key=lambda item: (item[0], item[1], item[2]))
+        remaining = [t for t in range(len(active_ids)) if t != i and t != j]
+        updated = np.zeros((len(remaining) + 1, len(remaining) + 1))
+        updated[:-1, :-1] = distances[np.ix_(remaining, remaining)]
+        new_distances = lance_williams_single(distances[i, remaining], distances[j, remaining], height)
+        updated[-1, :-1] = updated[:-1, -1] = new_distances
+        distances = updated
+        active_ids = [active_ids[t] for t in remaining] + [new_id]
 
-        new_id = next_id
-        next_id += 1
-        merged_members = members[left_id] + members[right_id]
-        members[new_id] = merged_members
-        history.append(
-            {
-                "step": len(history) + 1,
-                "cluster_a": f"C{left_id + 1}",
-                "cluster_b": f"C{right_id + 1}",
-                "distance": distance,
-                "merged_cluster": f"C{new_id + 1}",
-                "size": len(merged_members),
-            }
-        )
-        merges.append([left_id, right_id, distance, len(merged_members)])
-        active_ids = [cluster_id for cluster_id in active_ids if cluster_id not in (left_id, right_id)]
-        active_ids.append(new_id)
-
-    return np.asarray(merges, dtype=float), history, snapshots
+    return np.asarray(merges), history, snapshots
 
 
 def labels_at_k(linkage_matrix: np.ndarray, n_objects: int, n_clusters: int) -> np.ndarray:
@@ -237,28 +234,28 @@ def pairwise_partition_agreement(first: np.ndarray, second: np.ndarray) -> float
     return matches / total
 
 
-def initial_distance_check(x: np.ndarray, p: float) -> float:
-    """Сравнить начальную матрицу ручных расстояний с scipy.spatial.distance.pdist."""
-    hand_matrix = cluster_distance_matrix(
-        list(range(len(x))), {i: [i] for i in range(len(x))}, x, p
-    )
-    scipy_matrix = squareform(pdist(x, metric="minkowski", p=p))
-    return float(np.max(np.abs(hand_matrix - scipy_matrix)))
+def merge_groups(z: np.ndarray) -> list[frozenset]:
+    """Состав каждого нового узла по шагам, независимо от внутренних номеров SciPy."""
+    groups = [frozenset([i]) for i in range(len(z) + 1)]
+    for left, right, *_ in z:
+        groups.append(groups[int(left)] | groups[int(right)])
+    return groups[len(z) + 1:]
 
 
-def print_matrix_examples(snapshots: list[tuple[int, pd.DataFrame]], n_objects: int) -> None:
-    """Показать матрицы R_t: все для набора из шести строк, выборочно для 18 строк."""
-    if not snapshots:
-        return
-    if n_objects <= 6:
-        selected = snapshots
-    else:
-        indices = sorted({0, min(1, len(snapshots) - 1), len(snapshots) - 1})
-        selected = [snapshots[index] for index in indices]
-    for step, matrix in selected:
+def print_small_steps(snapshots: list[tuple[int, pd.DataFrame]], history: list[dict]) -> None:
+    for (step, matrix), merge in zip(snapshots, history):
         upper_triangle = matrix.mask(np.tril(np.ones(matrix.shape, dtype=bool)))
-        print(f"\nR_{step} — верхнетреугольная матрица расстояний между текущими центроидами:")
+        print(f"\nR_{step} — расстояния между активными кластерами:")
         print(upper_triangle.to_string(float_format=lambda value: f"{value:8.4f}", na_rep=""))
+        a, b, new = merge["cluster_a"], merge["cluster_b"], merge["merged_cluster"]
+        print(f"{a} + {b} → {new}, расстояние {merge['distance']:.5f}, "
+              f"осталось кластеров: {merge['clusters_left']}.")
+        if step == 0:
+            c = next(name for name in matrix if name not in (a, b))
+            ac, bc = matrix.loc[a, c], matrix.loc[b, c]
+            print(f"Ланс — Уильямс для d({new},{c}): "
+                  f"0.5 × {ac:.5f} + 0.5 × {bc:.5f} + 0 × {merge['distance']:.5f} "
+                  f"− 0.5 × |{ac:.5f} − {bc:.5f}| = {lance_williams_single(ac, bc, merge['distance']):.5f}")
 
 
 def save_matrix_snapshots(
@@ -267,7 +264,7 @@ def save_matrix_snapshots(
     dataset_key: str,
     p: float,
 ) -> None:
-    """Сохранить промежуточные матрицы маленьких учебных наборов в CSV."""
+    """Сохранить полные симметричные матрицы учебного примера в CSV."""
     matrix_dir = output_dir / "matrices"
     matrix_dir.mkdir(parents=True, exist_ok=True)
     p_tag = f"{p:g}".replace(".", "_")
@@ -287,73 +284,51 @@ def plot_dendrogram(
     p: float,
     k: int,
     destination: Path,
+    cluster_labels: np.ndarray,
+    colors: dict,
+    scale: str,
 ) -> None:
-    """Нарисовать дендрограмму ручной иерархии."""
-    fig, ax = plt.subplots(figsize=(12, 6.5))
-    options: dict = {
-        "leaf_rotation": 90,
-        "leaf_font_size": 8,
-        "ax": ax,
-    }
-    if len(object_labels) <= 40:
-        options["labels"] = object_labels
-    else:
-        n_objects = len(object_labels)
-
-        def truncated_leaf_label(cluster_id: int) -> str:
-            if cluster_id < n_objects:
-                return object_labels[cluster_id]
-            cluster_size = int(z[cluster_id - n_objects, 3])
-            return f"Группа ({cluster_size})"
-
-        options["truncate_mode"] = "lastp"
-        options["p"] = 30
-        options["show_contracted"] = True
-        options["leaf_label_func"] = truncated_leaf_label
-        options["leaf_font_size"] = 7
-    dendrogram(z, **options)
-    ax.set_title(f"Дендрограмма: {title}; центроид, Минковский p={p:g}")
-    ax.set_xlabel(
-        "Объекты" if len(object_labels) <= 40
-        else "Последние слияния; «Группа (N)» содержит N объектов"
-    )
-    ax.set_ylabel("Расстояние между центроидами")
-
+    """Полное дерево или свёрнутый обзор с теми же цветами, что у точек."""
     n_objects = len(object_labels)
-    last_merge_at_k = z[n_objects - k - 1, 2]
-    first_merge_below_k = z[n_objects - k, 2]
-    cut_height = (last_merge_at_k + first_merge_below_k) / 2
-    ax.axhline(cut_height, color="black", linestyle="--", linewidth=1.1)
-    ax.text(
-        0.99,
-        cut_height,
-        f" разрез: k={k}",
-        transform=ax.get_yaxis_transform(),
-        ha="right",
-        va="bottom",
-        fontsize=8,
-        color="black",
-        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8, "pad": 1.5},
-    )
+    node_cluster = list(cluster_labels)
+    for left, right, *_ in z:
+        a, b = node_cluster[int(left)], node_cluster[int(right)]
+        node_cluster.append(a if a == b else 0)
 
-    tolerance = 1e-12 * max(1.0, float(np.max(np.abs(z[:, 2]))))
-    inversion_count = sum(
-        z[merge_index, 2] < z[int(child_id) - n_objects, 2] - tolerance
-        for merge_index, row in enumerate(z)
-        for child_id in row[:2]
-        if child_id >= n_objects
-    )
-    if inversion_count:
-        fig.text(
-            0.5,
-            0.015,
-            f"Высотные инверсии: {inversion_count} — допустимая особенность метода центроидов",
-            ha="center",
-            fontsize=8,
-        )
-        fig.tight_layout(rect=(0, 0.06, 1, 1))
+    full = scale == "full"
+    fig, ax = plt.subplots(figsize=(max(12, n_objects * 0.10) if full else 12, 6.5))
+    options = {}
+    if not full:
+        options.update(truncate_mode="lastp", p=30 if scale == "overview" else 10,
+                       show_contracted=True)
+
+    def leaf_label(node: int) -> str:
+        if node < n_objects:
+            return object_labels[node]
+        return f"Группа ({int(z[node - n_objects, 3])})"
+
+    tree = dendrogram(z, ax=ax, leaf_rotation=90, leaf_font_size=7,
+                      leaf_label_func=leaf_label,
+                      link_color_func=lambda node: colors.get(node_cluster[node], "#555555"),
+                      **options)
+    for tick, node in zip(ax.get_xticklabels(), tree["leaves"]):
+        tick.set_color(colors.get(node_cluster[node], "#555555"))
+    ax.set_title(f"Дендрограмма: {title}\nБлижайший сосед, Минковский p={p:g}")
+    ax.set_xlabel("Объекты" if full else "Объекты и свёрнутые группы (число записей)")
+    ax.set_ylabel("Расстояние слияния")
+    completed = n_objects - k
+    lower = float(np.max(z[:completed, 2])) if completed else 0.0
+    upper = float(np.min(z[completed:, 2]))
+    if lower < upper:
+        cut_height = (lower + upper) / 2
+        ax.axhline(cut_height, color="black", linestyle="--", linewidth=1.1)
+        ax.text(0.99, cut_height, f" разрез: k={k}",
+                transform=ax.get_yaxis_transform(), ha="right", va="bottom", fontsize=8)
     else:
-        fig.tight_layout()
+        ax.text(0.01, 0.99, f"k={k}: после {completed} слияний; единого горизонтального разреза нет",
+                transform=ax.transAxes, va="top", fontsize=8)
+
+    fig.tight_layout()
     fig.savefig(destination, dpi=160, bbox_inches="tight")
 
 
@@ -366,22 +341,24 @@ def plot_scatter(
     title: str,
     p: float,
     destination: Path,
+    colors: dict,
 ) -> None:
     """Нарисовать цветную 2D- или 3D-проекцию кластеров."""
     indices = [feature_columns.index(column) for column in visual_columns]
     points = x[:, indices]
-    colors = plt.get_cmap("tab10")
-
+    cluster_numbers = np.unique(cluster_labels)
+    legend_columns = (len(cluster_numbers) + 19) // 20
+    figsize = (9 + 1.25 * legend_columns, 7.5)
     if len(indices) == 2:
-        fig, ax = plt.subplots(figsize=(9, 6.5))
-        for cluster_number in sorted(np.unique(cluster_labels)):
+        fig, ax = plt.subplots(figsize=figsize, layout="constrained")
+        for cluster_number in cluster_numbers:
             mask = cluster_labels == cluster_number
             ax.scatter(
                 points[mask, 0],
                 points[mask, 1],
                 s=65,
-                color=colors((cluster_number - 1) % 10),
-                label=f"Кластер {cluster_number}",
+                color=colors[cluster_number],
+                label=f"{cluster_number}: {mask.sum()}",
                 edgecolors="black",
                 linewidths=0.35,
             )
@@ -389,35 +366,37 @@ def plot_scatter(
             for index, label in enumerate(object_labels):
                 ax.annotate(label, (points[index, 0], points[index, 1]), fontsize=7,
                             xytext=(4, 3), textcoords="offset points")
-        ax.set_xlabel(f"{visual_columns[0]} (z-score)")
-        ax.set_ylabel(f"{visual_columns[1]} (z-score)")
+        ax.set_xlabel(visual_columns[0])
+        ax.set_ylabel(visual_columns[1])
         ax.grid(alpha=0.25)
-        ax.legend()
     elif len(indices) == 3:
-        fig = plt.figure(figsize=(10, 7.5))
+        fig = plt.figure(figsize=figsize, layout="constrained")
         ax = fig.add_subplot(111, projection="3d")
-        for cluster_number in sorted(np.unique(cluster_labels)):
+        for cluster_number in cluster_numbers:
             mask = cluster_labels == cluster_number
             ax.scatter(
                 points[mask, 0],
                 points[mask, 1],
                 points[mask, 2],
                 s=48,
-                color=colors((cluster_number - 1) % 10),
-                label=f"Кластер {cluster_number}",
+                color=colors[cluster_number],
+                label=f"{cluster_number}: {mask.sum()}",
                 edgecolors="black",
                 linewidths=0.3,
             )
-        ax.set_xlabel(f"{visual_columns[0]} (z-score)")
-        ax.set_ylabel(f"{visual_columns[1]} (z-score)")
-        ax.set_zlabel(f"{visual_columns[2]} (z-score)")
+        ax.set_xlabel(visual_columns[0])
+        ax.set_ylabel(visual_columns[1])
+        ax.set_zlabel(visual_columns[2])
+        if len(object_labels) <= 20:
+            for point, label in zip(points, object_labels):
+                ax.text(*point, label.split(". ", 1)[0], fontsize=7)
         ax.view_init(elev=24, azim=35)
-        ax.legend()
     else:
         raise ValueError("Для визуализации выберите два или три признака.")
 
-    fig.suptitle(f"{title}: кластеры, p={p:g}, k={len(np.unique(cluster_labels))}")
-    fig.tight_layout()
+    fig.suptitle(f"{title}: кластеры, p={p:g}, k={len(cluster_numbers)}")
+    fig.legend(loc="outside right center", ncols=legend_columns, title="Кластер: число объектов",
+               fontsize=9, columnspacing=1, handletextpad=0.3, borderaxespad=1)
     fig.savefig(destination, dpi=160, bbox_inches="tight")
 
 
@@ -433,82 +412,120 @@ def save_merge_history(history: list[dict], destination: Path) -> None:
 
 def run_dataset(
     config: dict,
-    dataset: tuple[pd.DataFrame, list[str], np.ndarray, np.ndarray],
+    dataset: tuple[pd.DataFrame, list[str], np.ndarray],
     p: float,
     k: int,
     output_dir: Path,
-    figures: list[plt.Figure],
+    normalize: bool,
+    dendrogram_scale: str,
+    save_region_matrices: bool,
 ) -> dict:
-    _frame, object_labels, _raw_x, x = dataset
-    n_objects = len(x)
-    print(f"\n{'=' * 72}\n{config['title']}\nОбъектов: {n_objects}; признаков для кластеризации: {x.shape[1]}")
+    frame, object_labels, raw_x = dataset
+    key = config["key"]
+    n_objects = len(raw_x)
+    x = raw_x
+    feature_labels = {name: name for name in config["feature_columns"]}
+    mode = "исходный масштаб"
+    if normalize:
+        span = np.ptp(raw_x, axis=0)
+        x = (raw_x - raw_x.min(axis=0)) / np.where(span == 0, 1, span)
+        mode = "min–max [0, 1]"
+        feature_labels = {name: f"{name.split(',')[0]} [0–1]" for name in feature_labels}
+    title = f"{config['title']} ({mode})"
+    print(f"\n{'=' * 72}\n{title}\nОбъектов: {n_objects}, признаков: {x.shape[1]}.")
+    if key == "attenu":
+        print("Объект — запись наблюдения. Признаки: магнитуда, расстояние до гипоцентра "
+              "(км), пиковое ускорение (в единицах g).")
+    else:
+        object_labels = [f"{i}. {name}" for i, name in enumerate(object_labels, start=1)]
 
-    keep_matrices = n_objects <= MATRIX_DATASET_LIMIT
-    z_manual, history, snapshots = manual_centroid_linkage(x, p, keep_matrices=keep_matrices)
+    initial = initial_distance_matrix(x, p)
+    keep_matrices = key == "small_regions" or (key == "regions" and save_region_matrices)
+    z_manual, history, snapshots = manual_single_linkage(initial, keep_matrices)
     if keep_matrices:
-        print_matrix_examples(snapshots, n_objects)
-        save_matrix_snapshots(snapshots, output_dir, config["key"], p)
+        save_matrix_snapshots(snapshots, output_dir, key, p)
+    if key == "small_regions":
+        print_small_steps(snapshots, history)
 
     labels_manual = labels_at_k(z_manual, n_objects, k)
-    result_dir = output_dir / f"p_{p:g}".replace(".", "_")
+    result_dir = output_dir
     result_dir.mkdir(parents=True, exist_ok=True)
     p_tag = f"{p:g}".replace(".", "_")
 
     cluster_file = result_dir / f"{config['key']}_clusters_p{p_tag}_k{k}.csv"
-    pd.DataFrame(
-        {"Объект": object_labels, "Кластер": labels_manual}
-    ).to_csv(cluster_file, index=False, encoding="utf-8-sig", lineterminator="\n")
+    profiles = pd.DataFrame(x, columns=list(feature_labels.values()))
+    details = profiles.copy()
+    details.insert(0, "Объект", frame[config["label_column"]].to_numpy())
+    details["Кластер"] = labels_manual
+    details.to_csv(cluster_file, index=False, encoding="utf-8-sig", lineterminator="\n")
+    profiles.insert(0, "Кластер", labels_manual)
+    means = profiles.groupby("Кластер").mean()
+    means.insert(0, "Объектов", profiles.groupby("Кластер").size())
+    means.to_csv(result_dir / f"{config['key']}_cluster_profiles_p{p_tag}_k{k}.csv",
+                 encoding="utf-8-sig", lineterminator="\n")
+    print(f"\nРазмеры кластеров и средние значения признаков ({mode}):")
+    print(means.to_string(float_format=lambda value: f"{value:.3f}"))
+    if key == "attenu":
+        print("\nПример наблюдений (полная таблица с измерениями и кластерами сохранена в CSV):")
+        print(details.head().to_string(index=False, float_format=lambda value: format_decimal(value, 6)))
     save_merge_history(history, result_dir / f"{config['key']}_merges_p{p_tag}.csv")
 
     dendrogram_path = result_dir / f"{config['key']}_dendrogram_p{p_tag}.png"
-    plot_dendrogram(z_manual, object_labels, config["title"], p, k, dendrogram_path)
-    figures.append(plt.gcf())
+    palette = plt.get_cmap("tab10" if k <= 10 else "turbo", k if k > 10 else 10)
+    colors = {number: to_hex(palette(number - 1)) for number in range(1, k + 1)}
+    plot_dendrogram(z_manual, object_labels, title, p, k, dendrogram_path,
+                    labels_manual, colors, dendrogram_scale)
 
     scatter_path = result_dir / f"{config['key']}_scatter_p{p_tag}.png"
     plot_scatter(
         x,
-        config["feature_columns"],
-        config["visual_columns"],
+        list(feature_labels.values()),
+        [feature_labels[column] for column in config["visual_columns"]],
         object_labels,
         labels_manual,
-        config["title"],
+        title,
         p,
         scatter_path,
+        colors,
     )
-    figures.append(plt.gcf())
 
-    # SciPy centroid linkage is mathematically defined for Euclidean distances (p=2).
-    # If another p was requested, p=2 is still run as an independent reference check.
-    z_manual_p2 = z_manual if np.isclose(p, 2.0) else manual_centroid_linkage(x, 2.0)[0]
-    z_scipy_p2 = linkage(x, method="centroid", metric="euclidean")
-    labels_hand_p2 = labels_at_k(z_manual_p2, n_objects, k)
-    labels_scipy_p2 = labels_at_k(z_scipy_p2, n_objects, k)
-    agreement = pairwise_partition_agreement(labels_hand_p2, labels_scipy_p2)
-    height_difference = float(np.max(np.abs(z_manual_p2[:, 2] - z_scipy_p2[:, 2])))
-    first_matrix_difference = initial_distance_check(x, p)
+    reference_distances = pdist(x, metric="minkowski", p=p)
+    if not np.isfinite(reference_distances).all() or np.any(
+        (reference_distances == 0) & (squareform(initial) != 0)
+    ):
+        # При больших p прямое возведение в степень в pdist может выйти за диапазон.
+        # scipy.linalg.norm с нормированием каждой пары сохраняет сравнимую точность.
+        from scipy.linalg import norm
 
-    print(f"\nСлияния ручного алгоритма: {len(history)}; итоговое разбиение для графика: k={k}.")
-    print(
-        "Максимальное расхождение начальной матрицы и scipy.pdist "
-        f"при p={format_decimal(p)}: {format_decimal(first_matrix_difference)}"
-    )
-    print(
-        f"Ручной алгоритм и SciPy centroid при p=2: согласие пар на k={k} — {agreement:.1%}; "
-        f"макс. разница высот слияний — {height_difference:.5f}."
-    )
-    if not np.isclose(p, 2.0):
-        print("Для выбранного p SciPy не используется как centroid-кластеризатор: его centroid-linkage "
-              "определён для евклидовой метрики. Сравнение полной иерархии выше выполнено отдельно при p=2.")
+        def scaled_norm(a, b):
+            delta = a - b
+            scale = np.max(np.abs(delta))
+            return scale * norm(delta / scale, ord=p) if scale else 0.0
+
+        reference_distances = pdist(x, metric=scaled_norm)
+    z_scipy = linkage(reference_distances, method="single")
+    labels_scipy = labels_at_k(z_scipy, n_objects, k)
+    agreement = pairwise_partition_agreement(labels_manual, labels_scipy)
+    height_difference = float(np.max(np.abs(z_manual[:, 2] - z_scipy[:, 2])))
+    first_matrix_difference = float(np.max(np.abs(squareform(initial) - reference_distances)))
+    manual_groups, scipy_groups = merge_groups(z_manual), merge_groups(z_scipy)
+    matching_steps = sum(a == b for a, b in zip(manual_groups, scipy_groups))
+    shared_nodes = len(set(manual_groups) & set(scipy_groups))
+    scipy_sizes = np.bincount(labels_scipy)[1:]
+    print(f"\nSciPy single при p={format_decimal(p)}. Разбиение при k={k}: "
+          f"согласие пар {agreement:.1%}, размеры SciPy {scipy_sizes.tolist()}.")
+    print(f"Совпало новых групп по шагам: {matching_steps}/{len(history)}, "
+          f"узлов дерева по составу: {shared_nodes}/{len(history)}.")
+    print(f"Макс. расхождение начальных расстояний: {format_decimal(first_matrix_difference)}. "
+          f"Макс. разница высот слияний: {height_difference:.5f}.")
 
     return {
-        "dataset": config["key"],
-        "objects": n_objects,
-        "features": x.shape[1],
-        "p_requested": p,
-        "k": k,
-        "initial_matrix_max_abs_error": first_matrix_difference,
-        "p2_pair_agreement": agreement,
-        "p2_max_merge_height_difference": height_difference,
+        "dataset": key, "objects": n_objects, "features": x.shape[1], "p": p, "k": k,
+        "scale": mode, "initial_matrix_max_abs_error": first_matrix_difference,
+        "pair_agreement": agreement, "max_merge_height_difference": f"{height_difference:.5f}",
+        "matching_steps": matching_steps, "shared_tree_nodes": shared_nodes,
+        "manual_sizes": ",".join(map(str, np.bincount(labels_manual)[1:])),
+        "scipy_sizes": ",".join(map(str, scipy_sizes)),
         "scatter_dimensions": len(config["visual_columns"]),
         "cluster_file": str(cluster_file.relative_to(BASE_DIR)),
         "dendrogram_file": str(dendrogram_path.relative_to(BASE_DIR)),
@@ -518,56 +535,93 @@ def run_dataset(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Ручная агломеративная кластеризация центроидов с расстоянием Минковского."
+        description="Ручная агломеративная кластеризация методом ближайшего соседа с расстоянием Минковского."
     )
+    parser.add_argument("--dataset", choices=["all", *(config["key"] for config in DATASETS)],
+                        help="Имя набора без .csv или all для запуска всех наборов.")
     parser.add_argument("--p", type=float, help="Показатель Минковского (например, 1 или 2).")
-    parser.add_argument("--k", type=int, help="Число кластеров для раскраски (по умолчанию 2).")
+    parser.add_argument("--k", type=int, help="Общее число кластеров, если для набора не указано отдельное.")
+    parser.add_argument("--normalize-large", action=argparse.BooleanOptionalAction, default=None,
+                        help="Нормализация min–max только для записей сейсмостанций (по умолчанию выключена).")
+    parser.add_argument("--dendrogram-scale", choices=["full", "overview", "top"], default="full",
+                        help="Все листья, последние 30 или последние 10 групп.")
+    parser.add_argument("--save-region-matrices", action="store_true",
+                        help="Сохранить матрицы 18 регионов в CSV без печати в терминал.")
+    for config in DATASETS:
+        parser.add_argument(f"--axes-{config['key'].replace('_', '-')}", nargs="+", type=int,
+                            help="Номера двух или трёх признаков для осей, начиная с 1.")
+        parser.add_argument(f"--k-{config['key'].replace('_', '-')}", type=int,
+                            help=f"Число кластеров: {config['title']}.")
     parser.add_argument("--no-show", action="store_true", help="Только сохранить графики, не открывать окна.")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    selected = args.dataset or (read_dataset_choice() if len(sys.argv) == 1 else "all")
+    configs = [config for config in DATASETS if selected in ("all", config["key"])]
     p = args.p if args.p is not None else read_p()
     if not np.isfinite(p) or p < 1:
         raise SystemExit("Параметр --p должен быть конечным и не меньше 1.")
+    includes_large = selected in ("all", "attenu")
+    if includes_large and args.normalize_large is None and args.p is None:
+        while True:
+            answer = input("Нормализовать признаки сейсмостанций? [1 — да, 0 или Enter — нет]: ").strip()
+            if answer in ("", "0", "1"):
+                args.normalize_large = answer == "1"
+                break
+            print("Введите 1 или 0.")
 
-    loaded = [(config, read_dataset(config)) for config in DATASETS]
-    loaded.sort(key=lambda item: len(item[1][1]))
-    min_objects = min(len(data[1]) for _, data in loaded)
-    k = args.k if args.k is not None else read_cluster_count(min_objects)
-    if not 2 <= k <= min_objects:
-        raise SystemExit(f"Значение --k должно быть от 2 до {min_objects} для всех трёх наборов.")
+    loaded = []
+    for template in configs:
+        config = template.copy()
+        axes = getattr(args, f"axes_{config['key']}")
+        features = config["feature_columns"]
+        if axes is not None:
+            if (len(axes) not in (2, 3) or len(set(axes)) != len(axes)
+                    or any(i < 1 or i > len(features) for i in axes)):
+                raise SystemExit(f"{config['title']}: выберите две или три различные оси из 1..{len(features)}.")
+            config["visual_columns"] = [features[i - 1] for i in axes]
+        loaded.append((config, read_dataset(config)))
+    cluster_counts = {}
+    for config, dataset in loaded:
+        k = getattr(args, f"k_{config['key']}")
+        if k is None:
+            k = args.k
+        if k is not None and not 2 <= k <= len(dataset[1]):
+            raise SystemExit(f"{config['title']}: число кластеров должно быть от 2 до {len(dataset[1])}.")
+        cluster_counts[config["key"]] = k
 
-    output_dir = RESULTS_DIR
+    scale_dir = "large_minmax" if includes_large and args.normalize_large else "raw"
+    output_dir = RESULTS_DIR / f"p_{p:g}".replace(".", "_") / scale_dir
+    if selected != "all":
+        output_dir = output_dir / selected
     output_dir.mkdir(parents=True, exist_ok=True)
     summaries: list[dict] = []
     for config, dataset in loaded:
-        dataset_figures: list[plt.Figure] = []
-        summaries.append(run_dataset(config, dataset, p, k, output_dir, dataset_figures))
+        k = cluster_counts[config["key"]]
+        if k is None:
+            k = read_cluster_count(len(dataset[1]), config["title"])
+        summaries.append(run_dataset(config, dataset, p, k, output_dir,
+                                     config["key"] == "attenu" and args.normalize_large,
+                                     args.dendrogram_scale, args.save_region_matrices))
 
         if args.no_show:
-            for figure in dataset_figures:
-                plt.close(figure)
+            plt.close("all")
         else:
-            print("\nОткрыты две диаграммы текущего набора. Закройте оба окна, чтобы перейти к следующему.")
+            print("\nОткрыты две диаграммы текущего набора. Для продолжения закройте оба окна.")
             plt.show()
 
-    summary_dir = output_dir / f"p_{p:g}".replace(".", "_")
-    summary_dir.mkdir(parents=True, exist_ok=True)
-    summary_frame = pd.DataFrame(summaries)
-    summary_frame["p2_max_merge_height_difference"] = summary_frame[
-        "p2_max_merge_height_difference"
-    ].map(lambda value: f"{value:.5f}")
-    summary_frame.to_csv(
-        summary_dir / "comparison_summary.csv",
+    pd.DataFrame(summaries).to_csv(
+        output_dir / "comparison_summary.csv",
         index=False,
         encoding="utf-8-sig",
         float_format=lambda value: format_decimal(value),
         lineterminator="\n",
     )
-    print(f"\nСозданы 6 графиков и таблицы результатов: {summary_dir}")
-    print("Матрицы R_t для двух малых наборов сохранены в папке results/matrices.")
+    print(f"\nГрафиков сохранено: {2 * len(summaries)}. Папка результатов: {output_dir}")
+    if selected in ("all", "small_regions"):
+        print("Матрицы R₀…R₄ для шести регионов сохранены в подпапке matrices.")
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,28 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "C++: active file (MSVC)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/out/cpp/${relativeFileDirname}/${fileBasenameNoExtension}/${fileBasenameNoExtension}.exe",
+      "args": [],
+      "cwd": "${fileDirname}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "preLaunchTask": "C/C++: cl.exe build active file"
+    },
+    {
+      "name": "C++: all .cpp in active folder (MSVC)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/out/cpp/${relativeFileDirname}/${fileBasenameNoExtension}/${fileBasenameNoExtension}.exe",
+      "args": [],
+      "cwd": "${fileDirname}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "preLaunchTask": "C++: build all .cpp in active folder (MSVC)"
+    },
+    {
       "type": "java",
       "name": "LibraryClientFx",
       "request": "launch",

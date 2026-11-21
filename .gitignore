@@ -18,6 +18,10 @@ test.py
 !/.vscode/settings.json
 !/.vscode/launch.json
 !/.vscode/tasks.json
+!/.vscode/build-cpp.ps1
+!/.vscode/run-cpp.cmd
+!/.vscode/extensions.json
+!/.vscode/README-cpp.md
 *.pdb
 *.ilk
 *.idb

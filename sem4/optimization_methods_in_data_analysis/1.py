@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 # ==============================
 # ДАННЫЕ
 # ==============================
@@ -98,12 +99,12 @@ x_plot = np.linspace(min(x1), max(x1), 400)
 y_plot_lagrange = np.array([lagrange_interpolation(x1, y1, xx) for xx in x_plot])
 
 plt.figure()
-plt.plot(x_plot, y_plot_lagrange, label="Lagrange polynomial")
-plt.scatter(x1, y1, color="red", label="Table points")
-plt.scatter([x_star], [y_lagrange], color="green", label="Interpolated value")
-plt.title("Interpolation (Task 1)")
-plt.xlabel("x")
-plt.ylabel("y")
+plt.plot(x_plot, y_plot_lagrange, label="Многочлен Лагранжа")
+plt.scatter(x1, y1, color="red", label="Табличные точки")
+plt.scatter([x_star], [y_lagrange], color="green", label="Значение интерполяции")
+plt.title("Интерполяция (задание 1)")
+plt.xlabel("Аргумент x")
+plt.ylabel("Значение y")
 plt.grid()
 plt.legend()
 plt.show()
@@ -153,16 +154,16 @@ for deg in degrees:
 x_dense = np.linspace(min(x2), max(x2), 400)
 
 plt.figure()
-plt.scatter(x2, y2, color="black", label="Experimental points")
+plt.scatter(x2, y2, color="black", label="Экспериментальные точки")
 
 for deg in degrees:
     coeffs = least_squares_poly(x2, y2, deg)
     y_dense = poly_value(coeffs, x_dense)
-    plt.plot(x_dense, y_dense, label=f"LS degree {deg}")
+    plt.plot(x_dense, y_dense, label=f"МНК: многочлен степени {deg}")
 
-plt.title("Least Squares Approximation (Task 2)")
-plt.xlabel("x")
-plt.ylabel("y")
+plt.title("Аппроксимация методом наименьших квадратов (задание 2)")
+plt.xlabel("Аргумент x")
+plt.ylabel("Значение y")
 plt.grid()
 plt.legend()
 plt.show()

@@ -301,10 +301,10 @@ int main() {
                 return 0;
             }
             if (choice == 1 || choice == 2) {
-                string name = readLine("Имя исходного файла (.txt): ");
+                string name = readLine("Bvz файла: ");
                 TextFile text(name);
                 if (choice == 1) {
-                    int k = readInt("K (от 1 до 9): ", 1, 9);
+                    int k = readInt("K", 1, 9);
                     text.copyLastLines(k);
                 } else {
                     text.uniqueCharacters();
